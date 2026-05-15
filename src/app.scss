@@ -1,0 +1,7 @@
+@import './styles/variables.scss';
+@import './styles/common.scss';
+
+page {
+  background-color: $bg-color;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}

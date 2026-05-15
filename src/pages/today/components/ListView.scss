@@ -1,0 +1,55 @@
+.list-view {
+  height: 100%;
+  padding: 0 32px;
+
+  .list-filter {
+    display: flex;
+    padding: 24px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 24px;
+      margin-right: 16px;
+      background: #f2f2f7;
+      border-radius: 32px;
+      white-space: nowrap;
+      font-size: 28px;
+      color: #1c1c1e;
+
+      .list-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      &.active {
+        background: #007aff;
+        color: #fff;
+      }
+    }
+  }
+
+  .task-list {
+    padding-bottom: 160px;
+  }
+
+  .empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+
+    .empty-text {
+      font-size: 32px;
+      color: #8e8e93;
+    }
+  }
+}

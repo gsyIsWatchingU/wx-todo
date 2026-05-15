@@ -1,0 +1,118 @@
+.today-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f2f2f7;
+
+  .header {
+    background: #fff;
+    padding: 16px 32px;
+    padding-top: calc(16px + env(safe-area-inset-top));
+    border-bottom: 1px solid #e5e5ea;
+
+    .view-switcher {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+
+      .view-tab {
+        padding: 12px 32px;
+        font-size: 28px;
+        color: #8e8e93;
+        position: relative;
+
+        &.active {
+          color: #007aff;
+          font-weight: bold;
+
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background: #007aff;
+            border-radius: 2px;
+          }
+        }
+      }
+    }
+
+    .nav-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .today-btn {
+        font-size: 28px;
+        color: #007aff;
+        padding: 8px 16px;
+      }
+
+      .nav-arrows {
+        display: flex;
+        gap: 32px;
+
+        .nav-arrow {
+          font-size: 48px;
+          color: #007aff;
+          padding: 8px 16px;
+        }
+      }
+    }
+  }
+
+  .content {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .quick-add {
+    display: flex;
+    align-items: center;
+    padding: 16px 32px;
+    background: #fff;
+    border-top: 1px solid #e5e5ea;
+
+    .quick-add-input {
+      flex: 1;
+      height: 72px;
+      background: #f2f2f7;
+      border-radius: 36px;
+      padding: 0 32px;
+      font-size: 28px;
+    }
+
+    .quick-add-btn {
+      margin-left: 16px;
+      padding: 16px 32px;
+      background: #007aff;
+      color: #fff;
+      border-radius: 36px;
+      font-size: 28px;
+    }
+  }
+
+  .fab {
+    position: fixed;
+    right: 32px;
+    bottom: 32px;
+    width: 112px;
+    height: 112px;
+    background: #007aff;
+    border-radius: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(0, 122, 255, 0.4);
+
+    .fab-icon {
+      font-size: 64px;
+      color: #fff;
+      font-weight: bold;
+      line-height: 1;
+    }
+  }
+}

@@ -1,0 +1,48 @@
+.day-view {
+  height: 100%;
+  padding: 0 32px;
+
+  .day-header {
+    display: flex;
+    align-items: center;
+    padding: 32px 0;
+
+    .day-date {
+      font-size: 40px;
+      font-weight: bold;
+      color: #1c1c1e;
+    }
+
+    .today-tag {
+      margin-left: 16px;
+      padding: 8px 16px;
+      background: #007aff;
+      color: #fff;
+      font-size: 24px;
+      border-radius: 8px;
+    }
+  }
+
+  .task-section {
+    margin-bottom: 40px;
+
+    .section-title {
+      font-size: 28px;
+      color: #8e8e93;
+      margin-bottom: 24px;
+      display: block;
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+
+    .empty-text {
+      font-size: 32px;
+      color: #8e8e93;
+    }
+  }
+}
