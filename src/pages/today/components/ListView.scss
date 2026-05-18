@@ -1,3 +1,5 @@
+@import '../../../styles/variables.scss';
+
 .list-view {
   height: 100%;
   padding: 0 18px;
@@ -20,8 +22,8 @@
       background: #f2f2f7;
       border-radius: 20px;
       white-space: nowrap;
-      font-size: 14px;
-      color: #1c1c1e;
+      font-size: $font-size-sm;
+      color: $text-color;
 
       .list-dot {
         width: 10px;
@@ -31,7 +33,7 @@
       }
 
       &.active {
-        background: #007aff;
+        background: $primary-color;
         color: #fff;
       }
     }
@@ -48,8 +50,8 @@
     height: 240px;
 
     .empty-text {
-      font-size: 16px;
-      color: #8e8e93;
+      font-size: $font-size-base;
+      color: $text-color-secondary;
     }
   }
 }

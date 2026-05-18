@@ -1,5 +1,7 @@
 @import '../../styles/variables.scss';
 
+@import '../../styles/variables.scss';
+
 .today-page {
   display: flex;
   flex-direction: column;
@@ -32,6 +34,7 @@
         line-height: 1;
 
         &.active {
+          color: $primary-color;
           color: $primary-color;
           font-weight: 600;
           background: #fff;

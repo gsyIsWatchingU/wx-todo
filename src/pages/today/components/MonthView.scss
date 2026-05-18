@@ -1,3 +1,5 @@
+@import '../../../styles/variables.scss';
+
 .month-view {
   padding: 0 8px;
 
@@ -6,9 +8,9 @@
     text-align: center;
 
     .month-title {
-      font-size: 20px;
+      font-size: $font-size-lg;
       font-weight: 600;
-      color: #1c1c1e;
+      color: $text-color;
     }
   }
 
@@ -23,8 +25,8 @@
       text-align: center;
 
       .weekday-text {
-        font-size: 12px;
-        color: #8e8e93;
+        font-size: $font-size-xs;
+        color: $text-color-secondary;
       }
     }
   }
@@ -45,7 +47,7 @@
 
       &.selected {
         .date-number {
-          background: #007aff;
+          background: $primary-color;
           color: #fff;
           border-radius: 50%;
         }
@@ -53,7 +55,7 @@
 
       &.today {
         .date-number {
-          border: 2px solid #007aff;
+          border: 2px solid $primary-color;
           border-radius: 50%;
         }
       }
@@ -65,8 +67,8 @@
       }
 
       .date-number {
-        font-size: 16px;
-        color: #1c1c1e;
+        font-size: $font-size-base;
+        color: $text-color;
         width: 34px;
         height: 34px;
         display: flex;
@@ -81,7 +83,7 @@
 
         .task-count {
           font-size: 10px;
-          color: #8e8e93;
+          color: $text-color-secondary;
           padding: 1px 5px;
           background: #f2f2f7;
           border-radius: 6px;

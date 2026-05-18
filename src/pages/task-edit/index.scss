@@ -1,5 +1,7 @@
 @import '../../styles/variables.scss';
 
+@import '../../styles/variables.scss';
+
 .task-edit-page {
   min-height: 100vh;
   background: linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%);
@@ -37,6 +39,7 @@
       text-align: right;
 
       &.loading {
+        color: $text-color-secondary;
         color: $text-color-secondary;
       }
     }
@@ -108,6 +111,7 @@
 
           .active & {
             transform: translateX(20px);
+            transform: translateX(20px);
           }
         }
       }
@@ -128,6 +132,7 @@
           color: $text-color;
 
           &.active {
+            background: $primary-color;
             background: $primary-color;
             color: #fff;
             font-weight: 600;

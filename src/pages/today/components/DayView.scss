@@ -1,5 +1,7 @@
 @import '../../../styles/variables.scss';
 
+@import '../../../styles/variables.scss';
+
 .day-view {
   height: 100%;
   padding: 0 16px;
@@ -11,6 +13,7 @@
     padding: 18px 0 14px;
 
     .day-date {
+      font-size: $font-size-lg;
       font-size: $font-size-lg;
       font-weight: 600;
       color: $text-color;
@@ -50,6 +53,8 @@
     margin-top: 12px;
 
     .empty-text {
+      font-size: $font-size-base;
+      color: $text-color-secondary;
       font-size: $font-size-base;
       color: $text-color-secondary;
     }

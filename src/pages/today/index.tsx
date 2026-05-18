@@ -10,9 +10,9 @@ import MonthView from './components/MonthView';
 import ListView from './components/ListView';
 import './index.scss';
 
-interface TodayPageProps {}
+interface TodayPageProps { }
 
-export default function TodayPage({}: TodayPageProps) {
+export default function TodayPage({ }: TodayPageProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -117,6 +117,9 @@ export default function TodayPage({}: TodayPageProps) {
 
     try {
       const newTask = await createTask({
+        title: quickAddValue,
+        dueAt: viewMode === 'day' ? formatDate(selectedDate) :
+          viewMode === 'week' || viewMode === 'month' ? formatDate(selectedDate) : null,
         title: quickAddValue.trim(),
         dueAt: viewMode === 'day' ? formatDate(selectedDate) :
           viewMode === 'week' || viewMode === 'month' ? formatDate(selectedDate) : null,
@@ -138,94 +141,110 @@ export default function TodayPage({}: TodayPageProps) {
     <View className='today-page'>
       <View className='header'>
         <View className='view-switcher'>
-          <View className={`view-tab ${viewMode === 'day' ? 'active' : ''}`} onClick={() => setViewMode('day')}>
-            <Text>日</Text>
-          </View>
-          <View className={`view-tab ${viewMode === 'week' ? 'active' : ''}`} onClick={() => setViewMode('week')}>
-            <Text>周</Text>
-          </View>
-          <View className={`view-tab ${viewMode === 'month' ? 'active' : ''}`} onClick={() => setViewMode('month')}>
-            <Text>月</Text>
-          </View>
-          <View className={`view-tab ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}>
-            <Text>清单</Text>
-          </View>
-        </View>
+          <View
+            className={`view-tab ${viewMode === 'day' ? 'active' : ''}`}
+            onClick={() => setViewMode('day')}
+          >
+            <View className={`view-tab ${viewMode === 'day' ? 'active' : ''}`} onClick={() => setViewMode('day')}>
+              <Text>日</Text>
+            </View>
+            <View
+              className={`view-tab ${viewMode === 'week' ? 'active' : ''}`}
+              onClick={() => setViewMode('week')}
+            >
+              <View className={`view-tab ${viewMode === 'week' ? 'active' : ''}`} onClick={() => setViewMode('week')}>
+                <Text>周</Text>
+              </View>
+              <View
+                className={`view-tab ${viewMode === 'month' ? 'active' : ''}`}
+                onClick={() => setViewMode('month')}
+              >
+                <View className={`view-tab ${viewMode === 'month' ? 'active' : ''}`} onClick={() => setViewMode('month')}>
+                  <Text>月</Text>
+                </View>
+                <View
+                  className={`view-tab ${viewMode === 'list' ? 'active' : ''}`}
+                  onClick={() => setViewMode('list')}
+                >
+                  <View className={`view-tab ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}>
+                    <Text>清单</Text>
+                  </View>
+                </View>
 
-        <View className='nav-controls'>
-          <Text className='today-btn' onClick={handleGoToToday}>今天</Text>
-          <Text className='loading-text'>{isLoading ? '同步中...' : ''}</Text>
-          <View className='nav-arrows'>
-            <Text className='nav-arrow left' onClick={handlePrev}>‹</Text>
-            <Text className='nav-arrow right' onClick={handleNext}>›</Text>
-          </View>
-        </View>
-      </View>
+                <View className='nav-controls'>
+                  <Text className='today-btn' onClick={handleGoToToday}>今天</Text>
+                  <Text className='loading-text'>{isLoading ? '同步中...' : ''}</Text>
+                  <View className='nav-arrows'>
+                    <Text className='nav-arrow left' onClick={handlePrev}>‹</Text>
+                    <Text className='nav-arrow right' onClick={handleNext}>›</Text>
+                  </View>
+                </View>
+              </View>
 
-      <View className='content'>
-        {viewMode === 'day' && (
-          <DayView
-            selectedDate={selectedDate}
-            tasks={tasks.filter(t => {
-              if (isToday(selectedDate) && !t.dueAt) return true;
-              return t.dueAt === formatDate(selectedDate);
-            })}
-            onTaskClick={handleTaskClick}
-            onTaskToggle={handleTaskToggle}
-          />
-        )}
+              <View className='content'>
+                {viewMode === 'day' && (
+                  <DayView
+                    selectedDate={selectedDate}
+                    tasks={tasks.filter(t => {
+                      if (isToday(selectedDate) && !t.dueAt) return true;
+                      return t.dueAt === formatDate(selectedDate);
+                    })}
+                    onTaskClick={handleTaskClick}
+                    onTaskToggle={handleTaskToggle}
+                  />
+                )}
 
-        {viewMode === 'week' && (
-          <WeekView
-            selectedDate={selectedDate}
-            tasks={tasks}
-            onDateClick={handleDateClick}
-            onTaskClick={handleTaskClick}
-            onTaskToggle={handleTaskToggle}
-          />
-        )}
+                {viewMode === 'week' && (
+                  <WeekView
+                    selectedDate={selectedDate}
+                    tasks={tasks}
+                    onDateClick={handleDateClick}
+                    onTaskClick={handleTaskClick}
+                    onTaskToggle={handleTaskToggle}
+                  />
+                )}
 
-        {viewMode === 'month' && (
-          <MonthView
-            selectedDate={selectedDate}
-            tasks={tasks}
-            onDateClick={handleDateClick}
-          />
-        )}
+                {viewMode === 'month' && (
+                  <MonthView
+                    selectedDate={selectedDate}
+                    tasks={tasks}
+                    onDateClick={handleDateClick}
+                  />
+                )}
 
-        {viewMode === 'list' && (
-          <ListView
-            tasks={filteredTasks}
-            lists={lists}
-            selectedListId={selectedListId}
-            onListSelect={setSelectedListId}
-            onTaskClick={handleTaskClick}
-            onTaskToggle={handleTaskToggle}
-          />
-        )}
-      </View>
+                {viewMode === 'list' && (
+                  <ListView
+                    tasks={filteredTasks}
+                    lists={lists}
+                    selectedListId={selectedListId}
+                    onListSelect={setSelectedListId}
+                    onTaskClick={handleTaskClick}
+                    onTaskToggle={handleTaskToggle}
+                  />
+                )}
+              </View>
 
-      {showQuickAdd && (
-        <View className='quick-add'>
-          <Input
-            className='quick-add-input'
-            placeholder='快速添加任务...'
-            value={quickAddValue}
-            confirmType='done'
-            onInput={(e) => setQuickAddValue(e.detail.value)}
-            onConfirm={handleQuickAdd}
-          />
-          <Text className='quick-add-btn' onClick={handleQuickAdd}>添加</Text>
-        </View>
-      )}
+              {showQuickAdd && (
+                <View className='quick-add'>
+                  <Input
+                    className='quick-add-input'
+                    placeholder='快速添加任务...'
+                    value={quickAddValue}
+                    confirmType='done'
+                    onInput={(e) => setQuickAddValue(e.detail.value)}
+                    onConfirm={handleQuickAdd}
+                  />
+                  <Text className='quick-add-btn' onClick={handleQuickAdd}>添加</Text>
+                </View>
+              )}
 
-      <View className={`fab ${showQuickAdd ? 'with-quick-add' : ''}`} onClick={() => {
-        Taro.navigateTo({
-          url: `/pages/task-edit/index?mode=${viewMode}&date=${formatDate(selectedDate)}`
-        });
-      }}>
-        <Text className='fab-icon'>+</Text>
-      </View>
-    </View>
-  );
+              <View className={`fab ${showQuickAdd ? 'with-quick-add' : ''}`} onClick={() => {
+                Taro.navigateTo({
+                  url: `/pages/task-edit/index?mode=${viewMode}&date=${formatDate(selectedDate)}`
+                });
+              }}>
+                <Text className='fab-icon'>+</Text>
+              </View>
+            </View>
+            );
 }
