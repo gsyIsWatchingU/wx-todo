@@ -1,3 +1,5 @@
+@import '../../../styles/variables.scss';
+
 .day-view {
   height: 100%;
   padding: 0 18px;
@@ -8,17 +10,17 @@
     padding: 20px 0;
 
     .day-date {
-      font-size: 22px;
+      font-size: $font-size-lg;
       font-weight: 600;
-      color: #1c1c1e;
+      color: $text-color;
     }
 
     .today-tag {
       margin-left: 10px;
       padding: 4px 10px;
-      background: #007aff;
+      background: $primary-color;
       color: #fff;
-      font-size: 12px;
+      font-size: $font-size-xs;
       border-radius: 6px;
     }
   }
@@ -27,8 +29,8 @@
     margin-bottom: 24px;
 
     .section-title {
-      font-size: 14px;
-      color: #8e8e93;
+      font-size: $font-size-sm;
+      color: $text-color-secondary;
       margin-bottom: 12px;
       display: block;
     }
@@ -41,8 +43,8 @@
     height: 240px;
 
     .empty-text {
-      font-size: 16px;
-      color: #8e8e93;
+      font-size: $font-size-base;
+      color: $text-color-secondary;
     }
   }
 }

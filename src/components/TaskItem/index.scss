@@ -1,3 +1,5 @@
+@import '../../styles/variables.scss';
+
 .task-item {
   display: flex;
   align-items: center;
@@ -32,7 +34,7 @@
 
       .check-mark {
         color: #fff;
-        font-size: 18px;
+        font-size: $font-size-md;
         font-weight: bold;
         line-height: 1;
       }
@@ -44,19 +46,19 @@
     min-width: 0;
 
     .task-title {
-      font-size: 16px;
-      color: #1c1c1e;
+      font-size: $font-size-base;
+      color: $text-color;
       line-height: 1.4;
 
       &.done {
         text-decoration: line-through;
-        color: #8e8e93;
+        color: $text-color-secondary;
       }
     }
 
     .task-time {
-      font-size: 13px;
-      color: #8e8e93;
+      font-size: $font-size-sm;
+      color: $text-color-secondary;
       margin-top: 4px;
     }
   }

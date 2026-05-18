@@ -11,9 +11,9 @@ import MonthView from './components/MonthView';
 import ListView from './components/ListView';
 import './index.scss';
 
-interface TodayPageProps {}
+interface TodayPageProps { }
 
-export default function TodayPage({}: TodayPageProps) {
+export default function TodayPage({ }: TodayPageProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -109,8 +109,8 @@ export default function TodayPage({}: TodayPageProps) {
     try {
       const newTask = await createTask({
         title: quickAddValue,
-        dueAt: viewMode === 'day' ? formatDate(selectedDate) : 
-              viewMode === 'week' || viewMode === 'month' ? formatDate(selectedDate) : null,
+        dueAt: viewMode === 'day' ? formatDate(selectedDate) :
+          viewMode === 'week' || viewMode === 'month' ? formatDate(selectedDate) : null,
       });
       setTasks([...tasks, newTask]);
       setQuickAddValue('');
@@ -127,25 +127,25 @@ export default function TodayPage({}: TodayPageProps) {
     <View className='today-page'>
       <View className='header'>
         <View className='view-switcher'>
-          <View 
+          <View
             className={`view-tab ${viewMode === 'day' ? 'active' : ''}`}
             onClick={() => setViewMode('day')}
           >
             <Text>日</Text>
           </View>
-          <View 
+          <View
             className={`view-tab ${viewMode === 'week' ? 'active' : ''}`}
             onClick={() => setViewMode('week')}
           >
             <Text>周</Text>
           </View>
-          <View 
+          <View
             className={`view-tab ${viewMode === 'month' ? 'active' : ''}`}
             onClick={() => setViewMode('month')}
           >
             <Text>月</Text>
           </View>
-          <View 
+          <View
             className={`view-tab ${viewMode === 'list' ? 'active' : ''}`}
             onClick={() => setViewMode('list')}
           >
