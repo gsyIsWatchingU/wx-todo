@@ -6,24 +6,24 @@
 
   .header {
     background: #fff;
-    padding: 12px 20px;
-    padding-top: calc(12px + env(safe-area-inset-top));
+    padding: 10px 18px;
+    padding-top: calc(10px + env(safe-area-inset-top));
     border-bottom: 1px solid #e5e5ea;
 
     .view-switcher {
       display: flex;
       justify-content: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
 
       .view-tab {
-        padding: 8px 20px;
+        padding: 6px 18px;
         font-size: 14px;
         color: #8e8e93;
         position: relative;
 
         &.active {
           color: #007aff;
-          font-weight: bold;
+          font-weight: 600;
 
           &::after {
             content: '';
@@ -31,7 +31,7 @@
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 32px;
+            width: 28px;
             height: 3px;
             background: #007aff;
             border-radius: 2px;
@@ -48,17 +48,18 @@
       .today-btn {
         font-size: 14px;
         color: #007aff;
-        padding: 6px 12px;
+        padding: 5px 10px;
       }
 
       .nav-arrows {
         display: flex;
-        gap: 20px;
+        gap: 18px;
 
         .nav-arrow {
-          font-size: 28px;
+          font-size: 24px;
           color: #007aff;
-          padding: 4px 12px;
+          padding: 2px 10px;
+          line-height: 1;
         }
       }
     }
@@ -72,47 +73,54 @@
   .quick-add {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    padding: 10px 18px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
     background: #fff;
     border-top: 1px solid #e5e5ea;
 
     .quick-add-input {
       flex: 1;
-      height: 44px;
+      height: 40px;
+      min-width: 0;
       background: #f2f2f7;
-      border-radius: 22px;
-      padding: 0 20px;
-      font-size: 15px;
+      border-radius: 20px;
+      padding: 0 16px;
+      font-size: 14px;
     }
 
     .quick-add-btn {
-      margin-left: 12px;
-      padding: 10px 20px;
+      margin-left: 10px;
+      padding: 9px 16px;
       background: #007aff;
       color: #fff;
-      border-radius: 22px;
+      border-radius: 20px;
       font-size: 14px;
+      line-height: 1;
+      white-space: nowrap;
     }
   }
 
   .fab {
     position: fixed;
-    right: 20px;
-    bottom: calc(20px + env(safe-area-inset-bottom));
-    width: 56px;
-    height: 56px;
+    right: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    width: 52px;
+    height: 52px;
     background: #007aff;
-    border-radius: 28px;
+    border-radius: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 16px rgba(0, 122, 255, 0.4);
+    box-shadow: 0 4px 16px rgba(0, 122, 255, 0.32);
+
+    &.with-quick-add {
+      bottom: calc(72px + env(safe-area-inset-bottom));
+    }
 
     .fab-icon {
-      font-size: 32px;
+      font-size: 30px;
       color: #fff;
-      font-weight: bold;
+      font-weight: 600;
       line-height: 1;
     }
   }
