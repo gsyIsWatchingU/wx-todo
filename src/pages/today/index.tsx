@@ -1,10 +1,9 @@
-import { View, Text, Input, Image } from '@tarojs/components';
-import { useState } from 'react';
+import { View, Text, Input } from '@tarojs/components';
+import { useEffect, useState } from 'react';
 import Taro from '@tarojs/taro';
-import type { Task, List } from '../../types';
-import type { ViewMode } from '../../types';
-import { formatDate, addDays, addWeeks, addMonths, isToday, isSameDay } from '../../utils/dateTools';
-import { listTasks, createTask, toggleTask } from '../../services/tasks';
+import type { Task, List, ViewMode } from '../../types';
+import { formatDate, addDays, addWeeks, addMonths, isToday } from '../../utils/dateTools';
+import { listTasks, listLists, createTask, toggleTask } from '../../services/tasks';
 import DayView from './components/DayView';
 import WeekView from './components/WeekView';
 import MonthView from './components/MonthView';
@@ -26,7 +25,7 @@ export default function TodayPage({}: TodayPageProps) {
   const loadTasks = async () => {
     setIsLoading(true);
     try {
-      let filter: any = { status: 'active' };
+      const filter: any = { status: 'active' };
 
       if (viewMode === 'day') {
         filter.dateStart = formatDate(selectedDate);
@@ -43,20 +42,29 @@ export default function TodayPage({}: TodayPageProps) {
         const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
         filter.dateStart = formatDate(monthStart);
         filter.dateEnd = formatDate(addDays(monthEnd, 1));
-      } else if (viewMode === 'list') {
-        if (selectedListId) {
-          filter.listId = selectedListId;
-        }
+      } else if (viewMode === 'list' && selectedListId) {
+        filter.listId = selectedListId;
       }
 
       const loadedTasks = await listTasks(filter);
       setTasks(loadedTasks);
     } catch (error) {
       console.error('Failed to load tasks:', error);
+      Taro.showToast({ title: '任务加载失败', icon: 'none' });
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    listLists()
+      .then(setLists)
+      .catch(error => console.error('Failed to load lists:', error));
+  }, []);
+
+  useEffect(() => {
+    loadTasks();
+  }, [viewMode, selectedDate, selectedListId]);
 
   const handleGoToToday = () => {
     setSelectedDate(new Date());
@@ -96,10 +104,11 @@ export default function TodayPage({}: TodayPageProps) {
 
   const handleTaskToggle = async (task: Task) => {
     try {
-      await toggleTask(task.id, !task.completed);
-      setTasks(tasks.map(t => t.id === task.id ? { ...t, completed: !t.completed } : t));
+      const updatedTask = await toggleTask(task.id, !task.completed);
+      setTasks(tasks.map(t => t.id === task.id ? updatedTask : t));
     } catch (error) {
       console.error('Failed to toggle task:', error);
+      Taro.showToast({ title: '更新失败', icon: 'none' });
     }
   };
 
@@ -108,14 +117,16 @@ export default function TodayPage({}: TodayPageProps) {
 
     try {
       const newTask = await createTask({
-        title: quickAddValue,
-        dueAt: viewMode === 'day' ? formatDate(selectedDate) : 
-              viewMode === 'week' || viewMode === 'month' ? formatDate(selectedDate) : null,
+        title: quickAddValue.trim(),
+        dueAt: viewMode === 'day' ? formatDate(selectedDate) :
+          viewMode === 'week' || viewMode === 'month' ? formatDate(selectedDate) : null,
       });
-      setTasks([...tasks, newTask]);
+      setTasks([newTask, ...tasks]);
       setQuickAddValue('');
+      Taro.showToast({ title: '已添加', icon: 'success' });
     } catch (error) {
       console.error('Failed to create task:', error);
+      Taro.showToast({ title: '添加失败', icon: 'none' });
     }
   };
 
@@ -127,34 +138,23 @@ export default function TodayPage({}: TodayPageProps) {
     <View className='today-page'>
       <View className='header'>
         <View className='view-switcher'>
-          <View 
-            className={`view-tab ${viewMode === 'day' ? 'active' : ''}`}
-            onClick={() => setViewMode('day')}
-          >
+          <View className={`view-tab ${viewMode === 'day' ? 'active' : ''}`} onClick={() => setViewMode('day')}>
             <Text>日</Text>
           </View>
-          <View 
-            className={`view-tab ${viewMode === 'week' ? 'active' : ''}`}
-            onClick={() => setViewMode('week')}
-          >
+          <View className={`view-tab ${viewMode === 'week' ? 'active' : ''}`} onClick={() => setViewMode('week')}>
             <Text>周</Text>
           </View>
-          <View 
-            className={`view-tab ${viewMode === 'month' ? 'active' : ''}`}
-            onClick={() => setViewMode('month')}
-          >
+          <View className={`view-tab ${viewMode === 'month' ? 'active' : ''}`} onClick={() => setViewMode('month')}>
             <Text>月</Text>
           </View>
-          <View 
-            className={`view-tab ${viewMode === 'list' ? 'active' : ''}`}
-            onClick={() => setViewMode('list')}
-          >
+          <View className={`view-tab ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}>
             <Text>清单</Text>
           </View>
         </View>
 
         <View className='nav-controls'>
           <Text className='today-btn' onClick={handleGoToToday}>今天</Text>
+          <Text className='loading-text'>{isLoading ? '同步中...' : ''}</Text>
           <View className='nav-arrows'>
             <Text className='nav-arrow left' onClick={handlePrev}>‹</Text>
             <Text className='nav-arrow right' onClick={handleNext}>›</Text>
@@ -211,6 +211,7 @@ export default function TodayPage({}: TodayPageProps) {
             className='quick-add-input'
             placeholder='快速添加任务...'
             value={quickAddValue}
+            confirmType='done'
             onInput={(e) => setQuickAddValue(e.detail.value)}
             onConfirm={handleQuickAdd}
           />
