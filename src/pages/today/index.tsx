@@ -21,6 +21,7 @@ export default function TodayPage({}: TodayPageProps) {
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const showQuickAdd = viewMode === 'day' || viewMode === 'list';
 
   const loadTasks = async () => {
     setIsLoading(true);
@@ -204,7 +205,7 @@ export default function TodayPage({}: TodayPageProps) {
         )}
       </View>
 
-      {(viewMode === 'day' || viewMode === 'list') && (
+      {showQuickAdd && (
         <View className='quick-add'>
           <Input
             className='quick-add-input'
@@ -217,7 +218,7 @@ export default function TodayPage({}: TodayPageProps) {
         </View>
       )}
 
-      <View className='fab' onClick={() => {
+      <View className={`fab ${showQuickAdd ? 'with-quick-add' : ''}`} onClick={() => {
         Taro.navigateTo({
           url: `/pages/task-edit/index?mode=${viewMode}&date=${formatDate(selectedDate)}`
         });
