@@ -1,10 +1,10 @@
 .list-view {
   height: 100%;
-  padding: 0 32px;
+  padding: 0 18px;
 
   .list-filter {
     display: flex;
-    padding: 24px 0;
+    padding: 14px 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 
@@ -15,19 +15,19 @@
     .filter-item {
       display: flex;
       align-items: center;
-      padding: 12px 24px;
-      margin-right: 16px;
+      padding: 8px 14px;
+      margin-right: 10px;
       background: #f2f2f7;
-      border-radius: 32px;
+      border-radius: 20px;
       white-space: nowrap;
-      font-size: 28px;
+      font-size: 14px;
       color: #1c1c1e;
 
       .list-dot {
-        width: 16px;
-        height: 16px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
-        margin-right: 8px;
+        margin-right: 6px;
       }
 
       &.active {
@@ -38,17 +38,17 @@
   }
 
   .task-list {
-    padding-bottom: 160px;
+    padding-bottom: 132px;
   }
 
   .empty-state {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 400px;
+    height: 240px;
 
     .empty-text {
-      font-size: 32px;
+      font-size: 16px;
       color: #8e8e93;
     }
   }
