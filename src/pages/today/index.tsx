@@ -25,25 +25,33 @@ export default function TodayPage({ }: TodayPageProps) {
   const loadTasks = async () => {
     setIsLoading(true);
     try {
-      const filter: any = { status: 'active' };
+      const filter: any = {};
 
       if (viewMode === 'day') {
+        if (!isToday(selectedDate)) {
+          filter.status = 'active';
+        }
         filter.dateStart = formatDate(selectedDate);
         filter.dateEnd = formatDate(addDays(selectedDate, 1));
         if (isToday(selectedDate)) {
           filter.includeUndated = true;
         }
       } else if (viewMode === 'week') {
+        filter.status = 'active';
         const weekStart = addDays(selectedDate, -((selectedDate.getDay() + 6) % 7));
         filter.dateStart = formatDate(weekStart);
         filter.dateEnd = formatDate(addDays(weekStart, 7));
       } else if (viewMode === 'month') {
+        filter.status = 'active';
         const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
         const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
         filter.dateStart = formatDate(monthStart);
         filter.dateEnd = formatDate(addDays(monthEnd, 1));
       } else if (viewMode === 'list' && selectedListId) {
+        filter.status = 'active';
         filter.listId = selectedListId;
+      } else if (viewMode === 'list') {
+        filter.status = 'active';
       }
 
       const loadedTasks = await listTasks(filter);
@@ -65,6 +73,15 @@ export default function TodayPage({ }: TodayPageProps) {
   useEffect(() => {
     loadTasks();
   }, [viewMode, selectedDate, selectedListId]);
+
+  useEffect(() => {
+    const unsubscribe = Taro.eventCenter.on('tasksRefresh', () => {
+      loadTasks();
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const handleGoToToday = () => {
     setSelectedDate(new Date());
@@ -116,13 +133,15 @@ export default function TodayPage({ }: TodayPageProps) {
     if (!quickAddValue.trim()) return;
 
     try {
+      const quickAddDate = viewMode === 'day'
+        ? formatDate(selectedDate)
+        : formatDate(new Date());
+
       const newTask = await createTask({
-        title: quickAddValue,
-        dueAt: viewMode === 'day' ? formatDate(selectedDate) :
-          viewMode === 'week' || viewMode === 'month' ? formatDate(selectedDate) : null,
         title: quickAddValue.trim(),
-        dueAt: viewMode === 'day' ? formatDate(selectedDate) :
-          viewMode === 'week' || viewMode === 'month' ? formatDate(selectedDate) : null,
+        dueAt: quickAddDate,
+        dueTime: '23:59',
+        listId: viewMode === 'list' ? selectedListId || undefined : undefined,
       });
       setTasks([newTask, ...tasks]);
       setQuickAddValue('');
@@ -145,106 +164,103 @@ export default function TodayPage({ }: TodayPageProps) {
             className={`view-tab ${viewMode === 'day' ? 'active' : ''}`}
             onClick={() => setViewMode('day')}
           >
-            <View className={`view-tab ${viewMode === 'day' ? 'active' : ''}`} onClick={() => setViewMode('day')}>
-              <Text>日</Text>
-            </View>
-            <View
-              className={`view-tab ${viewMode === 'week' ? 'active' : ''}`}
-              onClick={() => setViewMode('week')}
-            >
-              <View className={`view-tab ${viewMode === 'week' ? 'active' : ''}`} onClick={() => setViewMode('week')}>
-                <Text>周</Text>
-              </View>
-              <View
-                className={`view-tab ${viewMode === 'month' ? 'active' : ''}`}
-                onClick={() => setViewMode('month')}
-              >
-                <View className={`view-tab ${viewMode === 'month' ? 'active' : ''}`} onClick={() => setViewMode('month')}>
-                  <Text>月</Text>
-                </View>
-                <View
-                  className={`view-tab ${viewMode === 'list' ? 'active' : ''}`}
-                  onClick={() => setViewMode('list')}
-                >
-                  <View className={`view-tab ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}>
-                    <Text>清单</Text>
-                  </View>
-                </View>
+            <Text>日</Text>
+          </View>
+          <View
+            className={`view-tab ${viewMode === 'week' ? 'active' : ''}`}
+            onClick={() => setViewMode('week')}
+          >
+            <Text>周</Text>
+          </View>
+          <View
+            className={`view-tab ${viewMode === 'month' ? 'active' : ''}`}
+            onClick={() => setViewMode('month')}
+          >
+            <Text>月</Text>
+          </View>
+          <View
+            className={`view-tab ${viewMode === 'list' ? 'active' : ''}`}
+            onClick={() => setViewMode('list')}
+          >
+            <Text>清单</Text>
+          </View>
+        </View>
 
-                <View className='nav-controls'>
-                  <Text className='today-btn' onClick={handleGoToToday}>今天</Text>
-                  <Text className='loading-text'>{isLoading ? '同步中...' : ''}</Text>
-                  <View className='nav-arrows'>
-                    <Text className='nav-arrow left' onClick={handlePrev}>‹</Text>
-                    <Text className='nav-arrow right' onClick={handleNext}>›</Text>
-                  </View>
-                </View>
-              </View>
+        <View className='nav-controls'>
+          <Text className='today-btn' onClick={handleGoToToday}>今天</Text>
+          <View className='nav-arrows'>
+            <Text className='nav-arrow left' onClick={handlePrev}>‹</Text>
+            <Text className='nav-arrow right' onClick={handleNext}>›</Text>
+          </View>
+        </View>
+      </View>
 
-              <View className='content'>
-                {viewMode === 'day' && (
-                  <DayView
-                    selectedDate={selectedDate}
-                    tasks={tasks.filter(t => {
-                      if (isToday(selectedDate) && !t.dueAt) return true;
-                      return t.dueAt === formatDate(selectedDate);
-                    })}
-                    onTaskClick={handleTaskClick}
-                    onTaskToggle={handleTaskToggle}
-                  />
-                )}
+      <View className='content'>
+        {viewMode === 'day' && (
+          <DayView
+            selectedDate={selectedDate}
+            tasks={tasks.filter(t => {
+              if (isToday(selectedDate) && !t.dueAt) return true;
+              return t.dueAt === formatDate(selectedDate);
+            })}
+            onTaskClick={handleTaskClick}
+            onTaskToggle={handleTaskToggle}
+          />
+        )}
 
-                {viewMode === 'week' && (
-                  <WeekView
-                    selectedDate={selectedDate}
-                    tasks={tasks}
-                    onDateClick={handleDateClick}
-                    onTaskClick={handleTaskClick}
-                    onTaskToggle={handleTaskToggle}
-                  />
-                )}
+        {viewMode === 'week' && (
+          <WeekView
+            selectedDate={selectedDate}
+            tasks={tasks}
+            onDateClick={handleDateClick}
+            onTaskClick={handleTaskClick}
+            onTaskToggle={handleTaskToggle}
+          />
+        )}
 
-                {viewMode === 'month' && (
-                  <MonthView
-                    selectedDate={selectedDate}
-                    tasks={tasks}
-                    onDateClick={handleDateClick}
-                  />
-                )}
+        {viewMode === 'month' && (
+          <MonthView
+            selectedDate={selectedDate}
+            tasks={tasks}
+            onDateClick={handleDateClick}
+          />
+        )}
 
-                {viewMode === 'list' && (
-                  <ListView
-                    tasks={filteredTasks}
-                    lists={lists}
-                    selectedListId={selectedListId}
-                    onListSelect={setSelectedListId}
-                    onTaskClick={handleTaskClick}
-                    onTaskToggle={handleTaskToggle}
-                  />
-                )}
-              </View>
+        {viewMode === 'list' && (
+          <ListView
+            tasks={filteredTasks}
+            lists={lists}
+            selectedListId={selectedListId}
+            onListSelect={setSelectedListId}
+            onTaskClick={handleTaskClick}
+            onTaskToggle={handleTaskToggle}
+          />
+        )}
+      </View>
 
-              {showQuickAdd && (
-                <View className='quick-add'>
-                  <Input
-                    className='quick-add-input'
-                    placeholder='快速添加任务...'
-                    value={quickAddValue}
-                    confirmType='done'
-                    onInput={(e) => setQuickAddValue(e.detail.value)}
-                    onConfirm={handleQuickAdd}
-                  />
-                  <Text className='quick-add-btn' onClick={handleQuickAdd}>添加</Text>
-                </View>
-              )}
+      {showQuickAdd && (
+        <View className='quick-add'>
+          <Input
+            className='quick-add-input'
+            placeholder='快速添加任务...'
+            value={quickAddValue}
+            onInput={(e) => setQuickAddValue(e.detail.value)}
+            onConfirm={handleQuickAdd}
+          />
+          <Text className='quick-add-btn' onClick={handleQuickAdd}>添加</Text>
+        </View>
+      )}
 
-              <View className={`fab ${showQuickAdd ? 'with-quick-add' : ''}`} onClick={() => {
-                Taro.navigateTo({
-                  url: `/pages/task-edit/index?mode=${viewMode}&date=${formatDate(selectedDate)}`
-                });
-              }}>
-                <Text className='fab-icon'>+</Text>
-              </View>
-            </View>
-            );
+      <View
+        className={`fab ${showQuickAdd ? 'with-quick-add' : ''}`}
+        onClick={() => {
+          Taro.navigateTo({
+            url: `/pages/task-edit/index?mode=${viewMode}&date=${formatDate(selectedDate)}`
+          });
+        }}
+      >
+        <Text className='fab-icon'>+</Text>
+      </View>
+    </View>
+  );
 }

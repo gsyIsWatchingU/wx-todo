@@ -46,6 +46,7 @@ export default function ListView({ tasks, lists, selectedListId, onListSelect, o
               task={task}
               onClick={() => onTaskClick(task)}
               onToggle={() => onTaskToggle(task)}
+              showDate
             />
           ))
         )}

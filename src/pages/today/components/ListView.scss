@@ -2,7 +2,8 @@
 
 .list-view {
   height: 100%;
-  padding: 0 18px;
+  padding: 0 16px;
+  box-sizing: border-box;
 
   .list-filter {
     display: flex;

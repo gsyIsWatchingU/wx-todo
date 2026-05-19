@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro'
-import { supabaseRequest, isMissingTableError } from './supabaseRequest'
+import { supabaseRequest, isMissingTableError, isSchemaMismatchError } from './supabaseRequest'
 import type { Task, List, TaskFilter, CreateTaskInput, UpdateTaskInput } from '../types'
 
 const TASK_STORAGE_KEY = 'wx_todo_tasks'
@@ -127,6 +127,7 @@ function saveLocalLists(lists: List[]) {
 
 function shouldUseLocalFallback(error: unknown) {
   if (isMissingTableError(error)) return true
+  if (isSchemaMismatchError(error)) return true
   const message = error instanceof Error ? error.message : String(error)
   return message.includes('PGRST205') || message.includes('schema cache') || message.includes('404')
 }

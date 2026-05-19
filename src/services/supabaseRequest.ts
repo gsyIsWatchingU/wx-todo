@@ -25,6 +25,20 @@ export function isMissingTableError(error: unknown) {
   )
 }
 
+export function isSchemaMismatchError(error: unknown) {
+  if (!(error instanceof SupabaseRequestError)) return false
+  const data = error.data || {}
+  const message = typeof data === 'string' ? data : data.message
+
+  return (
+    error.statusCode === 400 &&
+    (
+      data.code === '42703' ||
+      String(message || '').includes('does not exist')
+    )
+  )
+}
+
 export async function supabaseRequest<T = any>(
   path: string,
   options: {

@@ -36,7 +36,7 @@ export default function TaskEditPage({}: TaskEditPageProps) {
   const loadTask = async (id: string) => {
     try {
       const { listTasks } = await import('../../services/tasks');
-      const tasks = await listTasks({ status: 'active' });
+      const tasks = await listTasks();
       const task = tasks.find(t => t.id === id);
       if (task) {
         setTitle(task.title);
@@ -83,9 +83,10 @@ export default function TaskEditPage({}: TaskEditPageProps) {
         });
         Taro.showToast({ title: '创建成功', icon: 'success' });
       }
+      Taro.eventCenter.trigger('tasksRefresh');
       setTimeout(() => {
         Taro.navigateBack();
-      }, 1500);
+      }, 500);
     } catch (error) {
       console.error('Failed to save task:', error);
       Taro.showToast({ title: '保存失败', icon: 'none' });
@@ -105,10 +106,11 @@ export default function TaskEditPage({}: TaskEditPageProps) {
           try {
             const { deleteTask } = await import('../../services/tasks');
             await deleteTask(taskId);
+            Taro.eventCenter.trigger('tasksRefresh');
             Taro.showToast({ title: '删除成功', icon: 'success' });
             setTimeout(() => {
               Taro.navigateBack();
-            }, 1500);
+            }, 500);
           } catch (error) {
             console.error('Failed to delete task:', error);
             Taro.showToast({ title: '删除失败', icon: 'none' });

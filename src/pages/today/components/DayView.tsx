@@ -12,12 +12,10 @@ interface DayViewProps {
 }
 
 export default function DayView({ selectedDate, tasks, onTaskClick, onTaskToggle }: DayViewProps) {
-  const undatedTasks = isToday(selectedDate) ? tasks.filter(t => !t.dueAt) : [];
-  const allDayTasks = tasks.filter(t => t.dueAt && t.dueTime === '00:00');
-  const timedTasks = tasks.filter(t => t.dueAt && t.dueTime && t.dueTime !== '00:00');
-
-  const sortedTimedTasks = [...timedTasks].sort((a, b) => 
-    (a.dueTime || '').localeCompare(b.dueTime || '')
+  const undatedTasks = isToday(selectedDate) ? tasks.filter(task => !task.dueAt) : [];
+  const datedTasks = tasks.filter(task => task.dueAt);
+  const sortedDatedTasks = [...datedTasks].sort((a, b) =>
+    (a.dueTime || '99:99').localeCompare(b.dueTime || '99:99')
   );
 
   return (
@@ -29,7 +27,7 @@ export default function DayView({ selectedDate, tasks, onTaskClick, onTaskToggle
 
       {undatedTasks.length > 0 && (
         <View className='task-section'>
-          <Text className='section-title'>未安排</Text>
+          <Text className='section-title'>未安排日期</Text>
           {undatedTasks.map(task => (
             <TaskItem
               key={task.id}
@@ -41,10 +39,10 @@ export default function DayView({ selectedDate, tasks, onTaskClick, onTaskToggle
         </View>
       )}
 
-      {allDayTasks.length > 0 && (
+      {sortedDatedTasks.length > 0 && (
         <View className='task-section'>
-          <Text className='section-title'>全天</Text>
-          {allDayTasks.map(task => (
+          <Text className='section-title'>任务</Text>
+          {sortedDatedTasks.map(task => (
             <TaskItem
               key={task.id}
               task={task}
@@ -55,21 +53,7 @@ export default function DayView({ selectedDate, tasks, onTaskClick, onTaskToggle
         </View>
       )}
 
-      {sortedTimedTasks.length > 0 && (
-        <View className='task-section'>
-          <Text className='section-title'>定时任务</Text>
-          {sortedTimedTasks.map(task => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              onClick={() => onTaskClick(task)}
-              onToggle={() => onTaskToggle(task)}
-            />
-          ))}
-        </View>
-      )}
-
-      {undatedTasks.length === 0 && allDayTasks.length === 0 && sortedTimedTasks.length === 0 && (
+      {undatedTasks.length === 0 && sortedDatedTasks.length === 0 && (
         <View className='empty-state'>
           <Text className='empty-text'>暂无任务</Text>
         </View>

@@ -61,11 +61,21 @@
       }
     }
 
-    .task-time {
-      display: block;
-      font-size: $font-size-xs;
-      color: $text-color-secondary;
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       margin-top: 3px;
+
+      .task-date {
+        font-size: $font-size-xs;
+        color: $text-color-secondary;
+      }
+
+      .task-time {
+        font-size: $font-size-xs;
+        color: $text-color-secondary;
+      }
     }
   }
 
