@@ -50,6 +50,7 @@ export async function supabaseRequest<T = any>(
     url: `${SUPABASE_URL}/rest/v1/${path}`,
     method: options.method || 'GET',
     data: options.data,
+    timeout: 10000,
     header: {
       apikey: SUPABASE_ANON_KEY,
       Authorization: `Bearer ${SUPABASE_ANON_KEY}`,

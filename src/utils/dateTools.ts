@@ -100,9 +100,10 @@ export const getCalendarDays = (date: Date): Date[] => {
   return result;
 };
 
-export const formatDisplayDate = (date: Date): string => {
+export const formatDisplayDate = (date: Date | string): string => {
+  const d = typeof date === 'string' ? parseDate(date) : date;
   const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-  return `${months[date.getMonth()]}${date.getDate()}日`;
+  return `${months[d.getMonth()]}${d.getDate()}日`;
 };
 
 export const formatWeekRange = (date: Date): string => {

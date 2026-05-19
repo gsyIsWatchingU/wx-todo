@@ -129,7 +129,7 @@ function shouldUseLocalFallback(error: unknown) {
   if (isMissingTableError(error)) return true
   if (isSchemaMismatchError(error)) return true
   const message = error instanceof Error ? error.message : String(error)
-  return message.includes('PGRST205') || message.includes('schema cache') || message.includes('404')
+  return message.includes('PGRST205') || message.includes('schema cache') || message.includes('404') || message.includes('timeout')
 }
 
 function applyTaskFilter(tasks: Task[], filter?: TaskFilter) {
