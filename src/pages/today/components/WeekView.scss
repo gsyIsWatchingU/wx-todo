@@ -55,6 +55,7 @@
 
       .day-tasks {
         min-height: 160px;
+        text-align: center;
 
         .no-tasks {
           display: block;
@@ -66,20 +67,31 @@
         .task-preview {
           padding: 6px 2px;
           overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
 
           .task-dot {
             font-size: $font-size-base;
             color: $primary-color;
             line-height: 1;
+            flex-shrink: 0;
+
+            &.high-priority {
+              color: #ff3b30;
+              font-weight: bold;
+            }
           }
 
           .task-title {
             font-size: $font-size-xs;
             color: $text-color;
-            display: block;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            flex: 1;
+            text-align: left;
 
             &.done {
               text-decoration: line-through;

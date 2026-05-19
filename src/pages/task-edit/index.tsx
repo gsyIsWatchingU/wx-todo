@@ -19,6 +19,7 @@ export default function TaskEditPage({}: TaskEditPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
+  const [isUnmounted, setIsUnmounted] = useState(false);
 
   useEffect(() => {
     const { id, mode, date } = Taro.getCurrentInstance().router?.params || {};
@@ -31,6 +32,10 @@ export default function TaskEditPage({}: TaskEditPageProps) {
       setHasDueDate(true);
       setDueDate(date);
     }
+
+    return () => {
+      setIsUnmounted(true);
+    };
   }, []);
 
   const loadTask = async (id: string) => {

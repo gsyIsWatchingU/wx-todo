@@ -63,7 +63,7 @@ export default function WeekView({ selectedDate, tasks, onDateClick, onTaskClick
                       className='task-preview'
                       onClick={(e) => { e.stopPropagation(); onTaskClick(task); }}
                     >
-                      <Text className={`task-dot ${task.completed ? 'completed' : ''}`}>·</Text>
+                      <Text className={`task-dot ${task.completed ? 'completed' : ''} ${task.priority === 3 ? 'high-priority' : ''}`}>·</Text>
                       <Text className={`task-title ${task.completed ? 'done' : ''}`}>
                         {task.title}
                       </Text>

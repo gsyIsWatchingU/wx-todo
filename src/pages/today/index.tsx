@@ -20,6 +20,7 @@ export default function TodayPage({ }: TodayPageProps) {
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isUnmounted, setIsUnmounted] = useState(false);
   const showQuickAdd = viewMode === 'day' || viewMode === 'list';
 
   const loadTasks = async () => {
@@ -55,12 +56,18 @@ export default function TodayPage({ }: TodayPageProps) {
       }
 
       const loadedTasks = await listTasks(filter);
-      setTasks(loadedTasks);
+      if (!isUnmounted) {
+        setTasks(loadedTasks);
+      }
     } catch (error) {
-      console.error('Failed to load tasks:', error);
-      Taro.showToast({ title: '任务加载失败', icon: 'none' });
+      if (!isUnmounted) {
+        console.error('Failed to load tasks:', error);
+        Taro.showToast({ title: '任务加载失败', icon: 'none' });
+      }
     } finally {
-      setIsLoading(false);
+      if (!isUnmounted) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -79,6 +86,7 @@ export default function TodayPage({ }: TodayPageProps) {
       loadTasks();
     });
     return () => {
+      setIsUnmounted(true);
       unsubscribe();
     };
   }, []);
