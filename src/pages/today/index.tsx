@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro';
 import type { Task, List, ViewMode } from '../../types';
 import { formatDate, addDays, addWeeks, addMonths, isToday } from '../../utils/dateTools';
 import { listTasks, listLists, createTask, toggleTask } from '../../services/tasks';
+import { isLoggedIn } from '../../services/auth';
 import DayView from './components/DayView';
 import WeekView from './components/WeekView';
 import MonthView from './components/MonthView';
@@ -72,6 +73,10 @@ export default function TodayPage({ }: TodayPageProps) {
   };
 
   useEffect(() => {
+    if (!isLoggedIn()) {
+      Taro.redirectTo({ url: '/pages/auth/index' })
+      return
+    }
     listLists()
       .then(setLists)
       .catch(error => console.error('Failed to load lists:', error));
@@ -87,7 +92,9 @@ export default function TodayPage({ }: TodayPageProps) {
     });
     return () => {
       setIsUnmounted(true);
-      unsubscribe();
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
     };
   }, []);
 

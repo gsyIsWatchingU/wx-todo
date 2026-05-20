@@ -1,5 +1,6 @@
 export default {
   pages: [
+    'pages/auth/index',
     'pages/today/index',
     'pages/index/index',
     'pages/task-edit/index',

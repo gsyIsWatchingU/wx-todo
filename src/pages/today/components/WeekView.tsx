@@ -48,10 +48,8 @@ export default function WeekView({ selectedDate, tasks, onDateClick, onTaskClick
             >
               <View className='day-header'>
                 <Text className='day-name'>{weekDays[dayOffset]}</Text>
-                <Text className='day-number'>{dayDate.getDate()}</Text>
+                <Text className={`day-number ${hasHighPriority ? 'has-high-priority' : ''}`}>{dayDate.getDate()}</Text>
               </View>
-
-              {hasHighPriority && <View className='priority-dot'></View>}
 
               <View className='day-tasks'>
                 {dayTasks.length === 0 ? (
@@ -63,7 +61,7 @@ export default function WeekView({ selectedDate, tasks, onDateClick, onTaskClick
                       className='task-preview'
                       onClick={(e) => { e.stopPropagation(); onTaskClick(task); }}
                     >
-                      <Text className={`task-dot ${task.completed ? 'completed' : ''} ${task.priority === 3 ? 'high-priority' : ''}`}>·</Text>
+                      <Text className={`task-dot ${task.completed ? 'completed' : ''} ${task.priority === 3 ? 'high-priority' : ''} ${task.priority === 1 ? 'low-priority' : ''}`}>·</Text>
                       <Text className={`task-title ${task.completed ? 'done' : ''}`}>
                         {task.title}
                       </Text>

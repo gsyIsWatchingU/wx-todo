@@ -90,13 +90,17 @@ export default function TaskEditPage({}: TaskEditPageProps) {
       }
       Taro.eventCenter.trigger('tasksRefresh');
       setTimeout(() => {
-        Taro.navigateBack();
+        if (!isUnmounted) {
+          Taro.navigateBack();
+        }
       }, 500);
     } catch (error) {
       console.error('Failed to save task:', error);
       Taro.showToast({ title: '保存失败', icon: 'none' });
     } finally {
-      setIsLoading(false);
+      if (!isUnmounted) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -107,14 +111,16 @@ export default function TaskEditPage({}: TaskEditPageProps) {
       title: '确认删除',
       content: '确定要删除这个任务吗？',
       success: async (res) => {
-        if (res.confirm) {
+        if (res.confirm && !isUnmounted) {
           try {
             const { deleteTask } = await import('../../services/tasks');
             await deleteTask(taskId);
             Taro.eventCenter.trigger('tasksRefresh');
             Taro.showToast({ title: '删除成功', icon: 'success' });
             setTimeout(() => {
-              Taro.navigateBack();
+              if (!isUnmounted) {
+                Taro.navigateBack();
+              }
             }, 500);
           } catch (error) {
             console.error('Failed to delete task:', error);
@@ -177,7 +183,7 @@ export default function TaskEditPage({}: TaskEditPageProps) {
               <Text>低</Text>
             </View>
             <View 
-              className={`priority-option ${priority === 2 ? 'active' : ''}`}
+              className={`priority-option medium ${priority === 2 ? 'active' : ''}`}
               onClick={() => setPriority(2)}
             >
               <Text>中</Text>

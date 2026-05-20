@@ -42,15 +42,11 @@
           color: $text-color;
           font-weight: 600;
           margin-top: 2px;
-        }
-      }
 
-      .priority-dot {
-        width: 6px;
-        height: 6px;
-        background: #ff3b30;
-        border-radius: 50%;
-        margin: 0 auto 6px;
+          &.has-high-priority {
+            color: #ff3b30;
+          }
+        }
       }
 
       .day-tasks {
@@ -81,6 +77,10 @@
             &.high-priority {
               color: #ff3b30;
               font-weight: bold;
+            }
+
+            &.low-priority {
+              color: #c0c0c0;
             }
           }
 

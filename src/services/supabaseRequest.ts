@@ -60,6 +60,9 @@ export async function supabaseRequest<T = any>(
   })
 
   if (res.statusCode >= 400) {
+    if (res.statusCode === 401) {
+      Taro.removeStorageSync('auth_user')
+    }
     throw new SupabaseRequestError(res.statusCode, res.data)
   }
 

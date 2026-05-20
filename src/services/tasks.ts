@@ -1,14 +1,10 @@
 import Taro from '@tarojs/taro'
 import { supabaseRequest, isMissingTableError, isSchemaMismatchError } from './supabaseRequest'
 import type { Task, List, TaskFilter, CreateTaskInput, UpdateTaskInput } from '../types'
+import { getCurrentUser } from './auth'
 
 const TASK_STORAGE_KEY = 'wx_todo_tasks'
 const LIST_STORAGE_KEY = 'wx_todo_lists'
-
-export async function getCurrentUser() {
-  // 微信小程序中简单实现，可根据需要扩展为微信登录
-  return { id: 'user-id' }
-}
 
 type DbTask = {
   id: string

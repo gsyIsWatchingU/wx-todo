@@ -1,7 +1,5 @@
 @import '../../styles/variables.scss';
 
-@import '../../styles/variables.scss';
-
 .task-edit-page {
   min-height: 100vh;
   background: linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%);
@@ -132,14 +130,19 @@
           color: $text-color;
 
           &.active {
-            background: $primary-color;
+            background: #e5e7eb;
+            color: $text-color;
+            font-weight: 600;
+          }
+
+          &.medium.active {
             background: $primary-color;
             color: #fff;
-            font-weight: 600;
           }
 
           &.high.active {
             background: #ff3b30;
+            color: #fff;
           }
         }
       }
