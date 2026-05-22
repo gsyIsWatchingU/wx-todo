@@ -3,23 +3,40 @@
 .index-container {
   min-height: 100vh;
   padding: $spacing-base;
+  padding-top: calc($spacing-base + env(safe-area-inset-top));
+  padding-bottom: calc($spacing-base + env(safe-area-inset-bottom));
   box-sizing: border-box;
+  background: $bg-color;
 }
 
 .header {
   padding: $spacing-lg $spacing-base;
   text-align: center;
   background-color: $bg-color-white;
-  border-radius: $border-radius-base;
-  box-shadow: $box-shadow-light;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow-cute;
   margin-bottom: $spacing-base;
+  border: 2px solid $border-color-light;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, $primary-color, $secondary-color);
+    border-radius: 2px;
+  }
 }
 
 .title {
   display: block;
   font-size: $font-size-xl;
-  font-weight: bold;
-  color: $primary-color;
+  font-weight: 800;
+  color: $text-color;
   margin-bottom: $spacing-xs;
 }
 
@@ -27,27 +44,40 @@
   display: block;
   font-size: $font-size-sm;
   color: $text-color-secondary;
+  font-weight: 500;
 }
 
 .input-box {
   display: flex;
   gap: $spacing-sm;
   margin-bottom: $spacing-base;
+  background: $bg-color-white;
+  padding: $spacing-base;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow-cute;
+  border: 2px solid $border-color-light;
 }
 
 .task-input {
   flex: 1;
-  padding: $spacing-base;
-  background-color: $bg-color-white;
-  border-radius: $border-radius-base;
-  border: 1px solid #ddd;
+  padding: $spacing-sm $spacing-base;
+  background-color: $bg-color-gray;
+  border-radius: $border-radius-xl;
+  border: 2px solid $border-color-light;
+  font-size: $font-size-base;
+  color: $text-color;
+  font-weight: 500;
 }
 
 .add-btn {
   background-color: $primary-color;
   color: #fff;
-  border-radius: $border-radius-base;
+  border-radius: $border-radius-xl;
   font-size: $font-size-base;
+  font-weight: 700;
+  padding: $spacing-sm $spacing-lg;
+  border: none;
+  box-shadow: 0 3px 0 darken($primary-color, 12%);
 }
 
 .content {
@@ -55,11 +85,12 @@
 }
 
 .empty-state {
-  padding: $spacing-xl;
+  padding: $spacing-xl $spacing-lg;
   text-align: center;
   background-color: $bg-color-white;
-  border-radius: $border-radius-base;
-  box-shadow: $box-shadow-light;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow-cute;
+  border: 2px dashed $border-color-light;
 }
 
 .empty-text {
@@ -67,12 +98,13 @@
   font-size: $font-size-base;
   color: $text-color;
   margin-bottom: $spacing-xs;
+  font-weight: 600;
 }
 
 .empty-hint {
   display: block;
   font-size: $font-size-sm;
-  color: $text-color-placeholder;
+  color: $text-color-secondary;
 }
 
 .todo-list {
@@ -82,13 +114,16 @@
     justify-content: space-between;
     padding: $spacing-base;
     background-color: $bg-color-white;
-    border-radius: $border-radius-base;
+    border-radius: $border-radius-lg;
     margin-bottom: $spacing-sm;
-    box-shadow: $box-shadow-light;
+    box-shadow: $box-shadow-cute;
+    border: 2px solid $border-color-light;
+    transition: all 0.2s ease;
   }
 
   .todo-item.completed {
-    opacity: 0.6;
+    opacity: 0.7;
+    background: $bg-color-gray;
   }
 
   .todo-content {
@@ -98,20 +133,25 @@
   }
 
   .checkbox {
-    width: 20px;
-    height: 20px;
-    border: 2px solid $primary-color;
+    width: 28px;
+    height: 28px;
+    border: 3px solid $border-color;
     border-radius: 50%;
     margin-right: $spacing-sm;
+    background: $bg-color-gray;
+    transition: all 0.2s ease;
   }
 
   .checkbox.checked {
-    background-color: $primary-color;
+    background-color: $success-color;
+    border-color: $success-color;
+    box-shadow: 0 2px 0 darken($success-color, 15%);
   }
 
   .todo-text {
     font-size: $font-size-base;
     color: $text-color;
+    font-weight: 500;
   }
 
   .todo-text.done {
@@ -121,8 +161,12 @@
 
   .delete-btn {
     font-size: $font-size-sm;
-    color: #ff4d4f;
-    background: none;
-    padding: 0;
+    color: #fff;
+    background: $error-color;
+    padding: $spacing-xs $spacing-sm;
+    border: none;
+    border-radius: $border-radius-base;
+    font-weight: 600;
+    box-shadow: 0 2px 0 darken($error-color, 15%);
   }
 }

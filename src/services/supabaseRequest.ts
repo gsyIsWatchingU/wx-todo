@@ -1,7 +1,8 @@
 import Taro from '@tarojs/taro'
 
-const SUPABASE_URL = 'https://mzqbykasnnzahbcyywtl.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16cWJ5a2Fzbm56YWhiY3l5d3RsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNTMxNzcsImV4cCI6MjA5NDYyOTE3N30.gtwTU77E0K8oxWKIfkcfz28LUx4eJ0wffc1Cb7M_W-w'
+const SUPABASE_URL = process.env.TARO_APP_SUPABASE_URL || 'https://mzqbykasnnzahbcyywtl.supabase.co'
+const SUPABASE_ANON_KEY = process.env.TARO_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16cWJ5a2Fzbm56YWhiY3l5d3RsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNTMxNzcsImV4cCI6MjA5NDYyOTE3N30.gtwTU77E0K8oxWKIfkcfz28LUx4eJ0wffc1Cb7M_W-w'
+const AUTH_USER_KEY = 'auth_user'
 
 export class SupabaseRequestError extends Error {
   statusCode: number
@@ -15,54 +16,29 @@ export class SupabaseRequestError extends Error {
   }
 }
 
-export function isMissingTableError(error: unknown) {
-  if (!(error instanceof SupabaseRequestError)) return false
-  const data = error.data || {}
-  const message = typeof data === 'string' ? data : data.message
-
-  return error.statusCode === 404 && (
-    data.code === 'PGRST205' || String(message || '').includes('schema cache')
-  )
-}
-
-export function isSchemaMismatchError(error: unknown) {
-  if (!(error instanceof SupabaseRequestError)) return false
-  const data = error.data || {}
-  const message = typeof data === 'string' ? data : data.message
-
-  return (
-    error.statusCode === 400 &&
-    (
-      data.code === '42703' ||
-      String(message || '').includes('does not exist')
-    )
-  )
-}
-
-export async function supabaseRequest<T = any>(
-  path: string,
+export async function invokeEdgeFunction<T = any>(
+  functionName: string,
+  data?: Record<string, any>,
   options: {
-    method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
-    data?: any
+    method?: 'GET' | 'POST'
+    withSession?: boolean
   } = {}
 ): Promise<T> {
+  const user = options.withSession === false ? null : (Taro.getStorageSync(AUTH_USER_KEY) as { sessionToken?: string } | null)
   const res = await Taro.request({
-    url: `${SUPABASE_URL}/rest/v1/${path}`,
-    method: options.method || 'GET',
-    data: options.data,
-    timeout: 10000,
+    url: `${SUPABASE_URL}/functions/v1/${functionName}`,
+    method: options.method || 'POST',
+    data,
+    timeout: 15000,
     header: {
       apikey: SUPABASE_ANON_KEY,
       Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       'Content-Type': 'application/json',
-      Prefer: 'return=representation',
+      ...(user?.sessionToken ? { 'x-session-token': user.sessionToken } : {}),
     },
   })
 
   if (res.statusCode >= 400) {
-    if (res.statusCode === 401) {
-      Taro.removeStorageSync('auth_user')
-    }
     throw new SupabaseRequestError(res.statusCode, res.data)
   }
 

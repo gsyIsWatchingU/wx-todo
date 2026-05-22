@@ -1,10 +1,7 @@
 import Taro from '@tarojs/taro'
-import { supabaseRequest, isMissingTableError, isSchemaMismatchError } from './supabaseRequest'
+import { invokeEdgeFunction, SupabaseRequestError } from './supabaseRequest'
 import type { Task, List, TaskFilter, CreateTaskInput, UpdateTaskInput } from '../types'
-import { getCurrentUser } from './auth'
-
-const TASK_STORAGE_KEY = 'wx_todo_tasks'
-const LIST_STORAGE_KEY = 'wx_todo_lists'
+import { requireCurrentUser } from './auth'
 
 type DbTask = {
   id: string
@@ -30,6 +27,10 @@ type DbList = {
   created_at: string
 }
 
+type ApiResponse<T> = {
+  data: T
+}
+
 function nowIso() {
   return new Date().toISOString()
 }
@@ -38,11 +39,19 @@ function createId(prefix = 'task') {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
+function getTaskStorageKey(userId: string) {
+  return `wx_todo_tasks:${userId}`
+}
+
+function getListStorageKey(userId: string) {
+  return `wx_todo_lists:${userId}`
+}
+
 function normalizeTask(task: DbTask | Task): Task {
   const source = task as any
   return {
     id: String(source.id),
-    userId: source.userId ?? source.user_id ?? 'user-id',
+    userId: source.userId ?? source.user_id ?? '',
     title: source.title ?? '',
     content: source.content ?? '',
     completed: Boolean(source.completed),
@@ -60,7 +69,7 @@ function normalizeList(list: DbList | List): List {
   const source = list as any
   return {
     id: String(source.id),
-    userId: source.userId ?? source.user_id ?? 'user-id',
+    userId: source.userId ?? source.user_id ?? '',
     name: source.name ?? '',
     color: source.color ?? '#007aff',
     sortOrder: source.sortOrder ?? source.sort_order ?? 0,
@@ -68,39 +77,28 @@ function normalizeList(list: DbList | List): List {
   }
 }
 
-function buildTaskPayload(input: CreateTaskInput | UpdateTaskInput, userId?: string) {
-  const payload: Record<string, any> = {}
-
-  if (userId) payload.user_id = userId
-  if ('title' in input && input.title !== undefined) payload.title = input.title
-  if ('content' in input && input.content !== undefined) payload.content = input.content || ''
-  if ('completed' in input && input.completed !== undefined) payload.completed = input.completed
-  if ('priority' in input && input.priority !== undefined) payload.priority = input.priority || 2
-  if ('listId' in input && input.listId !== undefined) payload.list_id = input.listId || null
-  if ('dueAt' in input && input.dueAt !== undefined) payload.due_at = input.dueAt || null
-  if ('dueTime' in input && input.dueTime !== undefined) payload.due_time = input.dueTime || null
-
-  return payload
-}
-
-function getLocalTasks(): Task[] {
+function getLocalTasks(userId: string): Task[] {
   try {
-    const value = Taro.getStorageSync(TASK_STORAGE_KEY)
-    return Array.isArray(value) ? value.map(normalizeTask) : []
+    const value = Taro.getStorageSync(getTaskStorageKey(userId))
+    const tasks = Array.isArray(value) ? value.map(normalizeTask) : []
+    return tasks.filter(task => task.userId === userId)
   } catch (error) {
     console.warn('Failed to read local tasks:', error)
     return []
   }
 }
 
-function saveLocalTasks(tasks: Task[]) {
-  Taro.setStorageSync(TASK_STORAGE_KEY, tasks)
+function saveLocalTasks(userId: string, tasks: Task[]) {
+  Taro.setStorageSync(getTaskStorageKey(userId), tasks.filter(task => task.userId === userId))
 }
 
-function getLocalLists(): List[] {
+function getLocalLists(userId: string): List[] {
   try {
-    const value = Taro.getStorageSync(LIST_STORAGE_KEY)
-    if (Array.isArray(value) && value.length > 0) return value.map(normalizeList)
+    const value = Taro.getStorageSync(getListStorageKey(userId))
+    const lists = Array.isArray(value) ? value.map(normalizeList) : []
+    if (lists.length > 0) {
+      return lists.filter(list => list.userId === userId)
+    }
   } catch (error) {
     console.warn('Failed to read local lists:', error)
   }
@@ -108,7 +106,7 @@ function getLocalLists(): List[] {
   return [
     {
       id: 'default',
-      userId: 'user-id',
+      userId,
       name: '默认清单',
       color: '#007aff',
       sortOrder: 0,
@@ -117,15 +115,15 @@ function getLocalLists(): List[] {
   ]
 }
 
-function saveLocalLists(lists: List[]) {
-  Taro.setStorageSync(LIST_STORAGE_KEY, lists)
+function saveLocalLists(userId: string, lists: List[]) {
+  Taro.setStorageSync(getListStorageKey(userId), lists.filter(list => list.userId === userId))
 }
 
 function shouldUseLocalFallback(error: unknown) {
-  if (isMissingTableError(error)) return true
-  if (isSchemaMismatchError(error)) return true
-  const message = error instanceof Error ? error.message : String(error)
-  return message.includes('PGRST205') || message.includes('schema cache') || message.includes('404') || message.includes('timeout')
+  if (!(error instanceof SupabaseRequestError)) return false
+  if (error.statusCode >= 500) return true
+  const message = typeof error.data === 'string' ? error.data : JSON.stringify(error.data || {})
+  return message.includes('timeout') || message.includes('Failed to fetch') || error.statusCode === 404
 }
 
 function applyTaskFilter(tasks: Task[], filter?: TaskFilter) {
@@ -151,7 +149,7 @@ function applyTaskFilter(tasks: Task[], filter?: TaskFilter) {
 }
 
 function localCreateTask(input: CreateTaskInput, userId: string): Task {
-  const tasks = getLocalTasks()
+  const tasks = getLocalTasks(userId)
   const createdAt = nowIso()
   const task: Task = {
     id: createId(),
@@ -168,89 +166,96 @@ function localCreateTask(input: CreateTaskInput, userId: string): Task {
     updatedAt: createdAt,
   }
 
-  saveLocalTasks([task, ...tasks])
+  saveLocalTasks(userId, [task, ...tasks])
   return task
 }
 
+function localUpdateTask(id: string, input: UpdateTaskInput, userId: string): Task {
+  const tasks = getLocalTasks(userId)
+  const existing = tasks.find(task => task.id === id)
+  if (!existing) {
+    throw new Error('Task not found for current user')
+  }
+
+  const updatedTask: Task = {
+    ...existing,
+    ...input,
+    listId: input.listId !== undefined ? input.listId : existing.listId,
+    dueAt: input.dueAt !== undefined ? input.dueAt : existing.dueAt,
+    dueTime: input.dueTime !== undefined ? input.dueTime : existing.dueTime,
+    updatedAt: nowIso(),
+  }
+
+  saveLocalTasks(userId, tasks.map(task => task.id === id ? updatedTask : task))
+  return updatedTask
+}
+
 export async function listTasks(filter?: TaskFilter): Promise<Task[]> {
-  const user = await getCurrentUser()
-  let query = `tasks?select=*&user_id=eq.${user?.id}`
-
-  if (filter?.status === 'active') {
-    query += '&completed=eq.false'
-  } else if (filter?.status === 'completed') {
-    query += '&completed=eq.true'
-  }
-
-  if (filter?.listId) {
-    query += `&list_id=eq.${filter.listId}`
-  }
-
-  query += '&order=due_at.asc,due_time.asc,created_at.desc'
+  const user = requireCurrentUser()
 
   try {
-    const remoteTasks = await supabaseRequest<DbTask[]>(query)
-    return applyTaskFilter(remoteTasks.map(normalizeTask), filter)
+    const response = await invokeEdgeFunction<ApiResponse<DbTask[]>>('app-api', {
+      action: 'listTasks',
+      filter,
+    })
+    const tasks = response.data.map(normalizeTask).filter(task => task.userId === user.id)
+    saveLocalTasks(user.id, tasks)
+    return applyTaskFilter(tasks, filter)
   } catch (error) {
     if (!shouldUseLocalFallback(error)) throw error
-    console.warn('Supabase tasks table is unavailable. Falling back to local storage:', error)
-    return applyTaskFilter(getLocalTasks(), filter)
+    console.warn('Tasks API unavailable. Falling back to local storage:', error)
+    return applyTaskFilter(getLocalTasks(user.id), filter)
   }
 }
 
 export async function createTask(input: CreateTaskInput): Promise<Task> {
-  const user = await getCurrentUser()
+  const user = requireCurrentUser()
 
   try {
-    const data = await supabaseRequest<DbTask[]>('tasks', {
-      method: 'POST',
-      data: buildTaskPayload(input, user?.id),
+    const response = await invokeEdgeFunction<ApiResponse<DbTask>>('app-api', {
+      action: 'createTask',
+      input,
     })
-
-    return normalizeTask(data[0])
+    const task = normalizeTask(response.data)
+    const tasks = getLocalTasks(user.id).filter(item => item.id !== task.id)
+    saveLocalTasks(user.id, [task, ...tasks])
+    return task
   } catch (error) {
     if (!shouldUseLocalFallback(error)) throw error
-    console.warn('Create task failed on Supabase. Saved locally instead:', error)
-    return localCreateTask(input, user?.id || 'user-id')
+    console.warn('Create task failed remotely. Saved locally instead:', error)
+    return localCreateTask(input, user.id)
   }
 }
 
 export async function updateTask(id: string, input: UpdateTaskInput): Promise<Task> {
-  try {
-    const data = await supabaseRequest<DbTask[]>(`tasks?id=eq.${id}`, {
-      method: 'PATCH',
-      data: buildTaskPayload(input),
-    })
+  const user = requireCurrentUser()
 
-    return normalizeTask(data[0])
+  try {
+    const response = await invokeEdgeFunction<ApiResponse<DbTask>>('app-api', {
+      action: 'updateTask',
+      id,
+      input,
+    })
+    const task = normalizeTask(response.data)
+    const tasks = getLocalTasks(user.id)
+    saveLocalTasks(user.id, tasks.some(item => item.id === id) ? tasks.map(item => item.id === id ? task : item) : [task, ...tasks])
+    return task
   } catch (error) {
     if (!shouldUseLocalFallback(error)) throw error
-    const tasks = getLocalTasks()
-    const existing = tasks.find(task => task.id === id)
-    if (!existing) throw error
-
-    const updatedTask: Task = {
-      ...existing,
-      ...input,
-      listId: input.listId !== undefined ? input.listId : existing.listId,
-      dueAt: input.dueAt !== undefined ? input.dueAt : existing.dueAt,
-      dueTime: input.dueTime !== undefined ? input.dueTime : existing.dueTime,
-      updatedAt: nowIso(),
-    }
-
-    saveLocalTasks(tasks.map(task => task.id === id ? updatedTask : task))
-    return updatedTask
+    return localUpdateTask(id, input, user.id)
   }
 }
 
 export async function deleteTask(id: string): Promise<void> {
+  const user = requireCurrentUser()
+
   try {
-    await supabaseRequest(`tasks?id=eq.${id}`, {
-      method: 'DELETE',
+    await invokeEdgeFunction<ApiResponse<{ success: true }>>('app-api', {
+      action: 'deleteTask',
+      id,
     })
-  } catch (error) {
-    if (!shouldUseLocalFallback(error)) throw error
-    saveLocalTasks(getLocalTasks().filter(task => task.id !== id))
+  } finally {
+    saveLocalTasks(user.id, getLocalTasks(user.id).filter(task => task.id !== id))
   }
 }
 
@@ -259,45 +264,46 @@ export async function toggleTask(id: string, completed: boolean): Promise<Task> 
 }
 
 export async function listLists(): Promise<List[]> {
-  const user = await getCurrentUser()
-  const query = `lists?select=*&user_id=eq.${user?.id}&order=sort_order.asc`
+  const user = requireCurrentUser()
 
   try {
-    const lists = await supabaseRequest<DbList[]>(query)
-    return lists.map(normalizeList)
+    const response = await invokeEdgeFunction<ApiResponse<DbList[]>>('app-api', {
+      action: 'listLists',
+    })
+    const lists = response.data.map(normalizeList).filter(list => list.userId === user.id)
+    saveLocalLists(user.id, lists)
+    return lists
   } catch (error) {
     if (!shouldUseLocalFallback(error)) throw error
-    console.warn('Supabase lists table is unavailable. Falling back to local storage:', error)
-    return getLocalLists()
+    console.warn('Lists API unavailable. Falling back to local storage:', error)
+    return getLocalLists(user.id)
   }
 }
 
 export async function createList(name: string, color: string): Promise<List> {
-  const user = await getCurrentUser()
+  const user = requireCurrentUser()
 
   try {
-    const data = await supabaseRequest<DbList[]>('lists', {
-      method: 'POST',
-      data: {
-        user_id: user?.id,
-        name,
-        color,
-      },
+    const response = await invokeEdgeFunction<ApiResponse<DbList>>('app-api', {
+      action: 'createList',
+      input: { name, color },
     })
-
-    return normalizeList(data[0])
+    const list = normalizeList(response.data)
+    const lists = getLocalLists(user.id).filter(item => item.id !== list.id)
+    saveLocalLists(user.id, [...lists, list].sort((a, b) => a.sortOrder - b.sortOrder))
+    return list
   } catch (error) {
     if (!shouldUseLocalFallback(error)) throw error
-    const lists = getLocalLists()
+    const lists = getLocalLists(user.id)
     const list: List = {
       id: createId('list'),
-      userId: user?.id || 'user-id',
+      userId: user.id,
       name,
       color,
       sortOrder: lists.length,
       createdAt: nowIso(),
     }
-    saveLocalLists([...lists, list])
+    saveLocalLists(user.id, [...lists, list])
     return list
   }
 }

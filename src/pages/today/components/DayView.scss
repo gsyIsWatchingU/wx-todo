@@ -1,62 +1,84 @@
 @import '../../../styles/variables.scss';
 
-@import '../../../styles/variables.scss';
-
 .day-view {
   height: 100%;
-  padding: 0 16px;
+  padding: 0 $spacing-base;
+  padding-top: $spacing-sm;
   box-sizing: border-box;
 
   .day-header {
     display: flex;
     align-items: center;
-    padding: 18px 0 14px;
+    padding: $spacing-base 0 $spacing-sm;
 
     .day-date {
       font-size: $font-size-lg;
-      font-size: $font-size-lg;
-      font-weight: 600;
+      font-weight: 700;
       color: $text-color;
       line-height: 1.2;
     }
 
     .today-tag {
-      margin-left: 8px;
-      padding: 4px 9px;
-      background: rgba(24, 144, 255, 0.12);
-      color: $primary-color;
+      margin-left: $spacing-xs;
+      padding: 4px 10px;
+      background: $secondary-color;
+      color: $text-color;
       font-size: $font-size-xs;
-      border-radius: 10px;
+      border-radius: $border-radius-xl;
       line-height: 1;
+      font-weight: 600;
+      box-shadow: 0 2px 0 darken($secondary-color, 10%);
     }
   }
 
   .task-section {
-    margin-bottom: 20px;
+    margin-bottom: $spacing-lg;
 
     .section-title {
       font-size: $font-size-sm;
       color: $text-color-secondary;
-      margin-bottom: 10px;
+      margin-bottom: $spacing-sm;
       display: block;
-      font-weight: 500;
+      font-weight: 600;
+      padding-left: $spacing-xs;
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 4px;
+        background: $primary-color;
+        border-radius: 50%;
+      }
     }
   }
 
   .empty-state {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 220px;
-    background: rgba(255, 255, 255, 0.72);
+    height: 260px;
+    background: rgba($bg-color-white, 0.85);
     border-radius: $border-radius-lg;
-    margin-top: 12px;
+    margin-top: $spacing-base;
+    border: 2px dashed $border-color-light;
+    text-align: center;
+
+    .empty-icon {
+      font-size: $font-size-xxl * 2;
+      opacity: 0.3;
+      margin-bottom: $spacing-sm;
+    }
 
     .empty-text {
       font-size: $font-size-base;
       color: $text-color-secondary;
-      font-size: $font-size-base;
-      color: $text-color-secondary;
+      font-weight: 500;
     }
   }
 }

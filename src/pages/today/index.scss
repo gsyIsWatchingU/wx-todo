@@ -1,44 +1,59 @@
 @import '../../styles/variables.scss';
 
-@import '../../styles/variables.scss';
-
 .today-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%);
+  background: $bg-color;
 
   .header {
-    background: rgba(255, 255, 255, 0.96);
-    padding: 10px 16px 12px;
-    padding-top: calc(10px + env(safe-area-inset-top));
-    border-bottom: 1px solid rgba(229, 229, 234, 0.8);
-    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+    background: $bg-color-white;
+    padding: $spacing-sm $spacing-base $spacing-base;
+    padding-top: calc($spacing-sm + env(safe-area-inset-top));
+    border-bottom: 2px solid $border-color-light;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    position: relative;
+    
+    // 顶部装饰线
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, $primary-color, $secondary-color);
+      border-radius: 2px;
+    }
 
     .view-switcher {
       display: flex;
       justify-content: center;
       gap: 6px;
-      padding: 4px;
-      margin-bottom: 10px;
-      background: #f2f4f8;
-      border-radius: 18px;
+      padding: 5px;
+      margin-bottom: $spacing-sm;
+      background: $bg-color-gray;
+      border-radius: $border-radius-xl;
+      border: 2px solid $border-color-light;
 
       .view-tab {
         flex: 1;
-        padding: 7px 0;
+        padding: 8px 0;
         text-align: center;
         font-size: $font-size-sm;
         color: $text-color-secondary;
-        border-radius: 14px;
+        border-radius: $border-radius-lg;
         line-height: 1;
+        font-weight: 500;
+        transition: all 0.2s ease;
 
         &.active {
-          color: $primary-color;
-          color: $primary-color;
-          font-weight: 600;
-          background: #fff;
-          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+          color: $text-color;
+          font-weight: 700;
+          background: $primary-color;
+          color: #ffffff;
+          box-shadow: 0 2px 0 darken($primary-color, 10%);
         }
       }
     }
@@ -47,14 +62,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      min-height: 30px;
+      min-height: 36px;
 
       .today-btn {
         font-size: $font-size-sm;
-        color: $primary-color;
-        padding: 6px 12px;
-        background: rgba(24, 144, 255, 0.1);
-        border-radius: 15px;
+        color: $text-color;
+        padding: 8px 14px;
+        background: $secondary-color;
+        border-radius: $border-radius-xl;
+        font-weight: 600;
+        box-shadow: 0 2px 0 darken($secondary-color, 10%);
       }
 
       .loading-text {
@@ -66,19 +83,22 @@
 
       .nav-arrows {
         display: flex;
-        gap: 8px;
+        gap: $spacing-xs;
 
         .nav-arrow {
-          width: 30px;
-          height: 30px;
+          width: 36px;
+          height: 36px;
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: $font-size-lg;
-          color: $primary-color;
+          color: $text-color;
           line-height: 1;
-          background: rgba(24, 144, 255, 0.1);
-          border-radius: 15px;
+          background: $bg-color-gray;
+          border-radius: 50%;
+          border: 2px solid $border-color;
+          font-weight: 700;
+          box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
         }
       }
     }
@@ -92,57 +112,64 @@
   .quick-add {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom));
-    background: rgba(255, 255, 255, 0.98);
-    border-top: 1px solid rgba(229, 229, 234, 0.8);
-    box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.05);
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-base;
+    padding-bottom: calc($spacing-sm + env(safe-area-inset-bottom));
+    background: $bg-color-white;
+    border-top: 2px solid $border-color-light;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
 
     .quick-add-input {
       flex: 1;
-      height: 38px;
+      height: 44px;
       min-width: 0;
-      background: #f2f4f8;
-      border-radius: 19px;
-      padding: 0 14px;
-      font-size: $font-size-sm;
+      background: $bg-color-gray;
+      border-radius: $border-radius-xl;
+      padding: 0 $spacing-base;
+      font-size: $font-size-base;
       color: $text-color;
+      border: 2px solid $border-color;
+      
+      &:focus {
+        border-color: $primary-color;
+      }
     }
 
     .quick-add-btn {
-      padding: 10px 15px;
+      padding: 10px $spacing-base;
       background: $primary-color;
       color: #fff;
-      border-radius: 18px;
+      border-radius: $border-radius-xl;
       font-size: $font-size-sm;
       line-height: 1;
       white-space: nowrap;
-      box-shadow: 0 4px 10px rgba(24, 144, 255, 0.2);
+      font-weight: 600;
+      box-shadow: 0 3px 0 darken($primary-color, 12%);
     }
   }
 
   .fab {
     position: fixed;
-    right: 16px;
-    bottom: calc(18px + env(safe-area-inset-bottom));
-    width: 48px;
-    height: 48px;
+    right: $spacing-base;
+    bottom: calc($spacing-lg + env(safe-area-inset-bottom));
+    width: 56px;
+    height: 56px;
     background: $primary-color;
-    border-radius: 24px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 18px rgba(24, 144, 255, 0.28);
+    box-shadow: 0 4px 0 darken($primary-color, 15%), 0 6px 16px rgba($primary-color, 0.4);
+    z-index: 100;
 
     &.with-quick-add {
-      bottom: calc(70px + env(safe-area-inset-bottom));
+      bottom: calc(80px + env(safe-area-inset-bottom));
     }
 
     .fab-icon {
       font-size: $font-size-xl;
       color: #fff;
-      font-weight: 500;
+      font-weight: 700;
       line-height: 1;
       transform: translateY(-1px);
     }

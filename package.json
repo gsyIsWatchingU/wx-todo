@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "taro build --type weapp --watch",
-    "build": "taro build --type weapp"
+    "build": "taro build --type weapp",
+    "deploy:functions": "powershell -ExecutionPolicy Bypass -File scripts/deploy-supabase-functions.ps1"
   },
   "keywords": [
     "taro",

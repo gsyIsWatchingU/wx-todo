@@ -1,39 +1,57 @@
-$primary-color: #1890ff;
-$success-color: #52c41a;
-$warning-color: #faad14;
-$error-color: #f5222d;
-$info-color: #1890ff;
+// ====== 可爱涂鸦主题配色 ======
+// 主色调 - 柔和薄荷绿
+$primary-color: #7ee8d2;
+// 次色调 - 温柔粉色
+$secondary-color: #ffd6e0;
+// 第三色 - 暖黄色
+$accent-color: #ffeaa7;
+// 成功色 - 柔和绿
+$success-color: #a8e6cf;
+// 警告色 - 温柔橙
+$warning-color: #ffcc80;
+// 错误色 - 柔和红
+$error-color: #ff8b94;
+// 信息色 - 浅蓝
+$info-color: #b3e5fc;
 
-$text-color: #333333;
-$text-color-secondary: #666666;
+// 文字颜色
+$text-color: #555555;
+$text-color-secondary: #888888;
 $text-color-disabled: #cccccc;
-$text-color-placeholder: #999999;
+$text-color-placeholder: #bbbbbb;
 
-$border-color: #e5e5e5;
-$border-color-light: #f0f0f0;
+// 边框和背景
+$border-color: #e8e8e8;
+$border-color-light: #f5f5f5;
 
-$bg-color: #f5f5f5;
+$bg-color: #fff9f0;
 $bg-color-white: #ffffff;
-$bg-color-gray: #f7f7f7;
+$bg-color-gray: #fafafa;
 
-// 统一字体大小规范
-$font-size-xs: 11px;      // 辅助文字/角标
-$font-size-sm: 13px;      // 次要文字/时间戳
-$font-size-base: 15px;    // 正文内容
-$font-size-md: 17px;      // 小标题/按钮
-$font-size-lg: 20px;      // 页面标题
-$font-size-xl: 24px;      // 大标题/日期选择器
-$font-size-xxl: 28px;     // 特大标题
+// ====== 统一尺寸规范 ======
+// 字体大小
+$font-size-xs: 12px;      // 辅助文字/角标
+$font-size-sm: 14px;      // 次要文字/时间戳
+$font-size-base: 16px;    // 正文内容
+$font-size-md: 18px;      // 小标题/按钮
+$font-size-lg: 22px;      // 页面标题
+$font-size-xl: 26px;      // 大标题/日期选择器
+$font-size-xxl: 30px;     // 特大标题
 
+// 间距
 $spacing-xs: 8px;
 $spacing-sm: 12px;
 $spacing-base: 16px;
 $spacing-lg: 24px;
 $spacing-xl: 32px;
 
-$border-radius-sm: 4px;
-$border-radius-base: 8px;
-$border-radius-lg: 12px;
+// 圆角
+$border-radius-sm: 6px;
+$border-radius-base: 12px;
+$border-radius-lg: 18px;
+$border-radius-xl: 24px;
 
-$box-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05);
-$box-shadow-base: 0 4px 12px rgba(0, 0, 0, 0.1);
+// 阴影 - 柔和涂鸦风格
+$box-shadow-light: 0 3px 10px rgba(0, 0, 0, 0.06);
+$box-shadow-base: 0 4px 15px rgba(0, 0, 0, 0.08);
+$box-shadow-cute: 0 5px 0 rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.06);

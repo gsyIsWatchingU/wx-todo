@@ -2,12 +2,13 @@
 
 .list-view {
   height: 100%;
-  padding: 0 16px;
+  padding: 0 $spacing-base;
+  padding-top: $spacing-sm;
   box-sizing: border-box;
 
   .list-filter {
     display: flex;
-    padding: 14px 0;
+    padding: $spacing-base 0 $spacing-sm;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 
@@ -18,17 +19,20 @@
     .filter-item {
       display: flex;
       align-items: center;
-      padding: 8px 14px;
-      margin-right: 10px;
-      background: #f2f2f7;
-      border-radius: 20px;
+      padding: 8px 16px;
+      margin-right: $spacing-sm;
+      background: $bg-color-gray;
+      border-radius: $border-radius-xl;
       white-space: nowrap;
       font-size: $font-size-sm;
-      color: $text-color;
+      color: $text-color-secondary;
+      font-weight: 500;
+      border: 2px solid $border-color-light;
+      transition: all 0.2s ease;
 
       .list-dot {
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         margin-right: 6px;
       }
@@ -36,23 +40,39 @@
       &.active {
         background: $primary-color;
         color: #fff;
+        border-color: $primary-color;
+        font-weight: 600;
+        box-shadow: 0 2px 0 darken($primary-color, 10%);
       }
     }
   }
 
   .task-list {
-    padding-bottom: 132px;
+    padding-bottom: 140px;
   }
 
   .empty-state {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 240px;
+    height: 260px;
+    background: rgba($bg-color-white, 0.85);
+    border-radius: $border-radius-lg;
+    margin-top: $spacing-base;
+    border: 2px dashed $border-color-light;
+    text-align: center;
+
+    .empty-icon {
+      font-size: $font-size-xxl * 2;
+      opacity: 0.3;
+      margin-bottom: $spacing-sm;
+    }
 
     .empty-text {
       font-size: $font-size-base;
       color: $text-color-secondary;
+      font-weight: 500;
     }
   }
 }

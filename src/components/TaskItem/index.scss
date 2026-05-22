@@ -1,20 +1,20 @@
 @import '../../styles/variables.scss';
 
-@import '../../styles/variables.scss';
-
 .task-item {
   display: flex;
   align-items: center;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.98);
+  padding: $spacing-sm $spacing-base;
+  background: $bg-color-white;
   border-radius: $border-radius-lg;
-  margin-bottom: 10px;
+  margin-bottom: $spacing-sm;
   position: relative;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+  box-shadow: $box-shadow-cute;
+  border: 2px solid $border-color-light;
+  transition: all 0.2s ease;
 
   .checkbox-wrapper {
     position: relative;
-    margin-right: 12px;
+    margin-right: $spacing-sm;
     padding: 2px;
 
     .hidden-checkbox {
@@ -22,24 +22,26 @@
     }
 
     .checkbox {
-      width: 22px;
-      height: 22px;
-      border: 2px solid #d1d5db;
+      width: 26px;
+      height: 26px;
+      border: 3px solid $border-color;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.2s;
+      background: $bg-color-gray;
 
       &.checked {
         background: $success-color;
         border-color: $success-color;
+        box-shadow: 0 2px 0 darken($success-color, 15%);
       }
 
       .check-mark {
         color: #fff;
         font-size: $font-size-sm;
-        font-weight: 700;
+        font-weight: 800;
         line-height: 1;
       }
     }
@@ -52,8 +54,9 @@
     .task-title {
       font-size: $font-size-base;
       color: $text-color;
-      line-height: 1.35;
+      line-height: 1.4;
       word-break: break-all;
+      font-weight: 500;
 
       &.done {
         text-decoration: line-through;
@@ -64,30 +67,38 @@
     .task-meta {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-top: 3px;
+      gap: $spacing-xs;
+      margin-top: 2px;
 
       .task-date {
         font-size: $font-size-xs;
         color: $text-color-secondary;
+        padding: 2px 8px;
+        background: $bg-color-gray;
+        border-radius: $border-radius-sm;
       }
 
       .task-time {
         font-size: $font-size-xs;
         color: $text-color-secondary;
+        padding: 2px 8px;
+        background: $secondary-color;
+        border-radius: $border-radius-sm;
       }
     }
   }
 
   .priority-flag {
-    width: 7px;
-    height: 7px;
-    background: #ff3b30;
+    width: 12px;
+    height: 12px;
+    background: $error-color;
     border-radius: 50%;
-    margin-left: 10px;
+    margin-left: $spacing-sm;
+    box-shadow: 0 2px 0 darken($error-color, 15%);
   }
 
   &.completed {
-    opacity: 0.62;
+    opacity: 0.7;
+    background: $bg-color-gray;
   }
 }
