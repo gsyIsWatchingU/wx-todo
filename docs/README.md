@@ -1,80 +1,30 @@
-# 微信小程序 Todo List
+# 文档总览
 
-一个基于 Taro + React + TypeScript + Supabase 开发的微信小程序 Todo List 应用。
+这里汇总 `wx-todo` 项目的说明文档，方便从当前能力、技术结构和后续规划几个角度快速了解项目。
 
-## 功能特性
+## 当前能力概览
 
-- [ ] 用户登录注册
-- [ ] 待办事项 CRUD
-- [ ] 待办事项分类
-- [ ] 待办事项优先级
-- [ ] 完成任务统计
+- 基于 `Taro + React + TypeScript + Supabase` 构建的微信小程序 Todo 应用
+- 支持微信登录与业务会话建立
+- 支持任务新增、编辑、删除、完成状态切换
+- 支持任务优先级、截止日期、截止时间、备注等基础信息
+- 支持 `日 / 周 / 月 / 清单` 四种任务视图
+- 支持清单创建与按清单筛选任务
+- 支持 `Supabase Edge Functions` 作为业务接口层
+- 支持接口异常时的本地存储兜底
 
-## 技术栈
+## 文档导航
 
-详见 [TECH_STACK.md](./TECH_STACK.md)
+- [TECH_STACK.md](./TECH_STACK.md)：技术栈说明
+- [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)：项目结构说明
+- [DATABASE.md](./DATABASE.md)：数据库设计
+- [API.md](./API.md)：接口说明
+- [DEPLOY_SUPABASE_EDGE_FUNCTIONS.md](./DEPLOY_SUPABASE_EDGE_FUNCTIONS.md)：Supabase Edge Functions 部署说明
+- [CHANGELOG.md](./CHANGELOG.md)：变更记录
+- [TODO.md](./TODO.md)：产品路线图与后续规划
 
-## 项目结构
+## 使用建议
 
-详见 [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)
-
-## 快速开始
-
-### 前置要求
-
-- Node.js >= 18.0.0
-- npm >= 9.0.0
-
-### 安装依赖
-
-```bash
-npm install
-```
-
-### 配置环境变量
-
-复制 `.env.example` 为 `.env`，并填入 Supabase 配置：
-
-```bash
-cp .env.example .env
-```
-
-在 `.env` 中配置：
-```
-TARO_APP_SUPABASE_URL=your_supabase_url
-TARO_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### 开发模式
-
-```bash
-# 监听模式开发微信小程序
-npm run dev
-```
-
-### 构建生产版本
-
-```bash
-npm run build
-```
-
-### 使用微信开发者工具预览
-
-1. 微信开发者工具导入项目根目录
-2. 点击预览即可
-
-## 数据库
-
-详见 [DATABASE.md](./DATABASE.md)
-
-## API
-
-详见 [API.md](./API.md)
-
-## 更新日志
-
-详见 [CHANGELOG.md](./CHANGELOG.md)
-
-## 待办事项
-
-详见 [TODO.md](./TODO.md)
+- 如果想快速了解项目现状，优先阅读主 [README.md](../README.md)
+- 如果想继续开发或扩展功能，优先阅读 [TODO.md](./TODO.md) 与 [DATABASE.md](./DATABASE.md)
+- 如果想部署后端能力，重点查看 [DEPLOY_SUPABASE_EDGE_FUNCTIONS.md](./DEPLOY_SUPABASE_EDGE_FUNCTIONS.md)

@@ -4,14 +4,22 @@ import { requireSessionUser } from '../_shared/auth.ts'
 type RequestBody = {
   action?: string
   filter?: {
-    status?: 'active' | 'completed'
+    keyword?: string
+    status?: 'all' | 'active' | 'completed'
+    priority?: 1 | 2 | 3
     listId?: string
+    dateStart?: string
+    dateEnd?: string
+    includeUndated?: boolean
   }
   input?: Record<string, unknown>
   id?: string
 }
 
-function getLegacyUserKey(user: { nick_name: string | null; id: string }) {
+function getLegacyUserKey(user: { nick_name: string | null; id: string }): string {
+  if (!user || !user.id) {
+    throw new Error('Invalid user object: missing id')
+  }
   const nickname = user.nick_name?.trim()
   return nickname && nickname.length > 0 ? nickname : user.id
 }
@@ -26,6 +34,15 @@ function jsonResponse(payload: unknown, status = 200) {
   })
 }
 
+function matchesDateFilter(task: { due_at: string | null }, filter: NonNullable<RequestBody['filter']>) {
+  if (!filter.dateStart || !filter.dateEnd) {
+    return true
+  }
+
+  const inRange = Boolean(task.due_at && task.due_at >= filter.dateStart && task.due_at < filter.dateEnd)
+  return inRange || Boolean(filter.includeUndated && !task.due_at)
+}
+
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -36,27 +53,50 @@ Deno.serve(async (request) => {
     const body = await request.json() as RequestBody
 
     if (body.action === 'listTasks') {
+      const filter = body.filter || {}
       let query = supabase
         .from('tasks')
         .select('id, user_id, title, content, completed, priority, list_id, due_at, due_time, repeat_rule, created_at, updated_at')
         .eq('user_id', user.id)
+
+      if (filter.status === 'active') {
+        query = query.eq('completed', false)
+      } else if (filter.status === 'completed') {
+        query = query.eq('completed', true)
+      }
+
+      if (filter.priority) {
+        query = query.eq('priority', filter.priority)
+      }
+
+      if (filter.listId) {
+        query = query.eq('list_id', filter.listId)
+      }
+
+      query = query
         .order('due_at', { ascending: true })
         .order('due_time', { ascending: true })
         .order('created_at', { ascending: false })
 
-      if (body.filter?.status === 'active') {
-        query = query.eq('completed', false)
-      } else if (body.filter?.status === 'completed') {
-        query = query.eq('completed', true)
-      }
-
-      if (body.filter?.listId) {
-        query = query.eq('list_id', body.filter.listId)
-      }
-
       const { data, error } = await query
       if (error) return jsonResponse({ error: error.message }, 500)
-      return jsonResponse({ data })
+
+      const keyword = filter.keyword?.trim().toLowerCase() || ''
+      const filteredData = (data || []).filter(task => {
+        if (!matchesDateFilter(task, filter)) {
+          return false
+        }
+
+        if (!keyword) {
+          return true
+        }
+
+        const title = (task.title || '').toLowerCase()
+        const content = (task.content || '').toLowerCase()
+        return title.includes(keyword) || content.includes(keyword)
+      })
+
+      return jsonResponse({ data: filteredData })
     }
 
     if (body.action === 'createTask') {

@@ -1,5 +1,7 @@
 export type ViewMode = 'day' | 'week' | 'month' | 'list';
 
+export type TaskStatusFilter = 'all' | 'active' | 'completed';
+
 export interface Task {
   id: string;
   userId: string;
@@ -25,7 +27,9 @@ export interface List {
 }
 
 export interface TaskFilter {
-  status?: 'active' | 'completed';
+  keyword?: string;
+  status?: TaskStatusFilter;
+  priority?: 1 | 2 | 3;
   listId?: string;
   dateStart?: string;
   dateEnd?: string;

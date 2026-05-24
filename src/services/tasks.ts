@@ -92,6 +92,24 @@ function saveLocalTasks(userId: string, tasks: Task[]) {
   Taro.setStorageSync(getTaskStorageKey(userId), tasks.filter(task => task.userId === userId))
 }
 
+function mergeTasksById(existingTasks: Task[], incomingTasks: Task[]) {
+  const taskMap = new Map(existingTasks.map(task => [task.id, task]))
+  incomingTasks.forEach(task => {
+    taskMap.set(task.id, task)
+  })
+  return sortTasks(Array.from(taskMap.values()))
+}
+
+function cacheRemoteTasks(userId: string, tasks: Task[], filter?: TaskFilter) {
+  if (!filter || Object.keys(filter).length === 0) {
+    saveLocalTasks(userId, sortTasks(tasks))
+    return
+  }
+
+  const existingTasks = getLocalTasks(userId)
+  saveLocalTasks(userId, mergeTasksById(existingTasks, tasks))
+}
+
 function getLocalLists(userId: string): List[] {
   try {
     const value = Taro.getStorageSync(getListStorageKey(userId))
@@ -107,7 +125,7 @@ function getLocalLists(userId: string): List[] {
     {
       id: 'default',
       userId,
-      name: '默认清单',
+      name: 'Inbox',
       color: '#007aff',
       sortOrder: 0,
       createdAt: nowIso(),
@@ -126,26 +144,50 @@ function shouldUseLocalFallback(error: unknown) {
   return message.includes('timeout') || message.includes('Failed to fetch') || error.statusCode === 404
 }
 
+function sortTasks(tasks: Task[]) {
+  return [...tasks].sort((a, b) => {
+    const dateCompare = (a.dueAt || '9999-12-31').localeCompare(b.dueAt || '9999-12-31')
+    if (dateCompare !== 0) return dateCompare
+
+    const timeCompare = (a.dueTime || '99:99').localeCompare(b.dueTime || '99:99')
+    if (timeCompare !== 0) return timeCompare
+
+    return b.createdAt.localeCompare(a.createdAt)
+  })
+}
+
+function matchesDateFilter(task: Task, filter?: TaskFilter) {
+  if (!filter?.dateStart || !filter?.dateEnd) {
+    return true
+  }
+
+  const inRange = Boolean(task.dueAt && task.dueAt >= filter.dateStart && task.dueAt < filter.dateEnd)
+  return inRange || Boolean(filter.includeUndated && !task.dueAt)
+}
+
 function applyTaskFilter(tasks: Task[], filter?: TaskFilter) {
-  const result = tasks.filter((task) => {
+  const keyword = filter?.keyword?.trim().toLowerCase()
+
+  const result = tasks.filter(task => {
     if (filter?.status === 'active' && task.completed) return false
     if (filter?.status === 'completed' && !task.completed) return false
+    if (filter?.priority && task.priority !== filter.priority) return false
     if (filter?.listId && task.listId !== filter.listId) return false
+    if (!matchesDateFilter(task, filter)) return false
 
-    if (filter?.dateStart && filter?.dateEnd) {
-      const inRange = Boolean(task.dueAt && task.dueAt >= filter.dateStart && task.dueAt < filter.dateEnd)
-      const includeUndated = Boolean(filter.includeUndated && !task.dueAt)
-      if (!inRange && !includeUndated) return false
+    if (keyword) {
+      const title = task.title.toLowerCase()
+      const content = task.content.toLowerCase()
+      if (!title.includes(keyword) && !content.includes(keyword)) {
+        return false
+      }
     }
 
     return true
   })
 
-  return result.sort((a, b) => {
-    const dateCompare = (a.dueAt || '9999-12-31').localeCompare(b.dueAt || '9999-12-31')
-    if (dateCompare !== 0) return dateCompare
-    return (a.dueTime || '99:99').localeCompare(b.dueTime || '99:99')
-  })
+  const sorted = sortTasks(result)
+  return filter?.limit ? sorted.slice(0, filter.limit) : sorted
 }
 
 function localCreateTask(input: CreateTaskInput, userId: string): Task {
@@ -198,8 +240,9 @@ export async function listTasks(filter?: TaskFilter): Promise<Task[]> {
       action: 'listTasks',
       filter,
     })
+
     const tasks = response.data.map(normalizeTask).filter(task => task.userId === user.id)
-    saveLocalTasks(user.id, tasks)
+    cacheRemoteTasks(user.id, tasks, filter)
     return applyTaskFilter(tasks, filter)
   } catch (error) {
     if (!shouldUseLocalFallback(error)) throw error
@@ -216,6 +259,7 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
       action: 'createTask',
       input,
     })
+
     const task = normalizeTask(response.data)
     const tasks = getLocalTasks(user.id).filter(item => item.id !== task.id)
     saveLocalTasks(user.id, [task, ...tasks])
@@ -236,9 +280,15 @@ export async function updateTask(id: string, input: UpdateTaskInput): Promise<Ta
       id,
       input,
     })
+
     const task = normalizeTask(response.data)
     const tasks = getLocalTasks(user.id)
-    saveLocalTasks(user.id, tasks.some(item => item.id === id) ? tasks.map(item => item.id === id ? task : item) : [task, ...tasks])
+    saveLocalTasks(
+      user.id,
+      tasks.some(item => item.id === id)
+        ? tasks.map(item => item.id === id ? task : item)
+        : [task, ...tasks],
+    )
     return task
   } catch (error) {
     if (!shouldUseLocalFallback(error)) throw error

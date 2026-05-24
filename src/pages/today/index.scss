@@ -13,8 +13,7 @@
     border-bottom: 2px solid $border-color-light;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     position: relative;
-    
-    // 顶部装饰线
+
     &::after {
       content: '';
       position: absolute;
@@ -49,12 +48,134 @@
         transition: all 0.2s ease;
 
         &.active {
-          color: $text-color;
-          font-weight: 700;
           background: $primary-color;
           color: #ffffff;
+          font-weight: 700;
           box-shadow: 0 2px 0 darken($primary-color, 10%);
         }
+      }
+    }
+
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-sm;
+
+      .search-input {
+        flex: 1;
+        height: 40px;
+        background: $bg-color-gray;
+        border-radius: $border-radius-xl;
+        border: 2px solid $border-color-light;
+        padding: 0 $spacing-base;
+        font-size: $font-size-sm;
+        color: $text-color;
+      }
+
+      .filter-toggle {
+        min-width: 66px;
+        padding: 10px 14px;
+        text-align: center;
+        background: $accent-color;
+        border-radius: $border-radius-xl;
+        font-size: $font-size-sm;
+        color: $text-color;
+        font-weight: 600;
+        box-shadow: 0 2px 0 darken($accent-color, 16%);
+      }
+    }
+
+    .filter-panel {
+      margin-bottom: $spacing-sm;
+      padding: $spacing-sm;
+      background: rgba($bg-color, 0.9);
+      border: 2px solid $border-color-light;
+      border-radius: $border-radius-lg;
+
+      .filter-group + .filter-group {
+        margin-top: $spacing-sm;
+      }
+
+      .filter-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: $font-size-xs;
+        color: $text-color-secondary;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chip {
+        padding: 8px 12px;
+        background: $bg-color-white;
+        border: 2px solid $border-color-light;
+        border-radius: $border-radius-xl;
+        font-size: $font-size-xs;
+        color: $text-color-secondary;
+        line-height: 1;
+
+        &.active {
+          background: $primary-color;
+          border-color: $primary-color;
+          color: #ffffff;
+          font-weight: 700;
+          box-shadow: 0 2px 0 darken($primary-color, 10%);
+        }
+      }
+
+      .custom-date-row {
+        display: flex;
+        gap: $spacing-sm;
+        margin-top: $spacing-sm;
+
+        .date-picker {
+          min-width: 0;
+          flex: 1;
+          padding: 11px $spacing-sm;
+          background: $bg-color-white;
+          border: 2px solid $border-color-light;
+          border-radius: $border-radius-base;
+          font-size: $font-size-sm;
+          color: $text-color;
+          text-align: center;
+        }
+      }
+
+      .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: $spacing-sm;
+        margin-top: $spacing-sm;
+
+        .secondary-action {
+          padding: 8px 12px;
+          font-size: $font-size-sm;
+          color: $text-color-secondary;
+          font-weight: 600;
+        }
+      }
+    }
+
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: $spacing-sm;
+
+      .active-filter-tag {
+        padding: 6px 10px;
+        background: rgba($secondary-color, 0.85);
+        border-radius: $border-radius-xl;
+        font-size: $font-size-xs;
+        color: $text-color;
       }
     }
 
@@ -129,10 +250,6 @@
       font-size: $font-size-base;
       color: $text-color;
       border: 2px solid $border-color;
-      
-      &:focus {
-        border-color: $primary-color;
-      }
     }
 
     .quick-add-btn {

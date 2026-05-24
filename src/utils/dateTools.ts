@@ -10,9 +10,9 @@ export const parseDate = (str: string): Date => {
 };
 
 export const isSameDay = (a: Date, b: Date): boolean => {
-  return a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate();
+  return a.getFullYear() === b.getFullYear()
+    && a.getMonth() === b.getMonth()
+    && a.getDate() === b.getDate();
 };
 
 export const isSameMonth = (a: Date, b: Date): boolean => {
@@ -39,30 +39,17 @@ export const addMonths = (date: Date, months: number): Date => {
   return result;
 };
 
-export const startOfDay = (date: Date): Date => {
-  const result = new Date(date);
-  result.setHours(0, 0, 0, 0);
-  return result;
-};
-
-export const endOfDay = (date: Date): Date => {
-  const result = new Date(date);
-  result.setHours(23, 59, 59, 999);
-  return result;
-};
-
 export const startOfWeek = (date: Date): Date => {
   const result = new Date(date);
   const day = result.getDay();
-  const diff = result.getDay() === 0 ? -6 : 1 - day;
+  const diff = day === 0 ? -6 : 1 - day;
   result.setDate(result.getDate() + diff);
   result.setHours(0, 0, 0, 0);
   return result;
 };
 
 export const endOfWeek = (date: Date): Date => {
-  const start = startOfWeek(date);
-  return addDays(start, 6);
+  return addDays(startOfWeek(date), 6);
 };
 
 export const startOfMonth = (date: Date): Date => {
@@ -74,36 +61,35 @@ export const endOfMonth = (date: Date): Date => {
 };
 
 export const getWeekDays = (): string[] => {
-  return ['一', '二', '三', '四', '五', '六', '日'];
+  return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 };
 
 export const getCalendarDays = (date: Date): Date[] => {
   const start = startOfMonth(date);
   const startDay = start.getDay() === 0 ? 6 : start.getDay() - 1;
   const result: Date[] = [];
-  
-  for (let i = 0; i < startDay; i++) {
+
+  for (let i = 0; i < startDay; i += 1) {
     result.push(addDays(start, -(startDay - i)));
   }
-  
+
   const end = endOfMonth(date);
   const total = 42 - (startDay + end.getDate());
-  
-  for (let i = 0; i < end.getDate(); i++) {
+
+  for (let i = 0; i < end.getDate(); i += 1) {
     result.push(addDays(start, i));
   }
-  
-  for (let i = 0; i < total; i++) {
+
+  for (let i = 0; i < total; i += 1) {
     result.push(addDays(end, i + 1));
   }
-  
+
   return result;
 };
 
 export const formatDisplayDate = (date: Date | string): string => {
   const d = typeof date === 'string' ? parseDate(date) : date;
-  const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-  return `${months[d.getMonth()]}${d.getDate()}日`;
+  return `${d.getMonth() + 1}/${d.getDate()}`;
 };
 
 export const formatWeekRange = (date: Date): string => {
@@ -113,6 +99,5 @@ export const formatWeekRange = (date: Date): string => {
 };
 
 export const formatMonthYear = (date: Date): string => {
-  const months = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
-  return `${date.getFullYear()}年${months[date.getMonth()]}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
 };
