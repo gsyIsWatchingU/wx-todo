@@ -73,7 +73,7 @@ export default defineConfig({
   h5: {
     publicPath: '/',
     staticDirectory: 'static',
-    favicon: '/static/favicon.png', 
+    favicon: '/static/favicon.svg', 
     postcss: {
       autoprefixer: {
         enable: true,

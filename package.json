@@ -37,8 +37,10 @@
     "@babel/preset-env": "^7.29.5",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.2",
     "@tarojs/cli": "^4.2.0",
     "@types/react": "^18.2.0",
+    "react-refresh": "^0.18.0",
     "typescript": "^5.0.0"
   }
 }
