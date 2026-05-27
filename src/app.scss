@@ -1,5 +1,6 @@
-@import './styles/variables.scss';
-@import './styles/common.scss';
+@use 'sass:color';
+@use './styles/variables.scss' as *;
+@use './styles/common.scss';
 
 page {
   background-color: $bg-color;
@@ -76,13 +77,13 @@ page {
   &.primary {
     background: $primary-color;
     color: #ffffff;
-    box-shadow: 0 3px 0 darken($primary-color, 10%), 0 4px 8px rgba($primary-color, 0.3);
+    box-shadow: 0 3px 0 color.adjust($primary-color, $lightness: -10%), 0 4px 8px rgba($primary-color, 0.3);
   }
   
   &.secondary {
     background: $secondary-color;
     color: $text-color;
-    box-shadow: 0 3px 0 darken($secondary-color, 10%), 0 4px 8px rgba($secondary-color, 0.3);
+    box-shadow: 0 3px 0 color.adjust($secondary-color, $lightness: -10%), 0 4px 8px rgba($secondary-color, 0.3);
   }
   
   &.ghost {
@@ -119,7 +120,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 0 darken($primary-color, 15%), 0 6px 16px rgba($primary-color, 0.4);
+  box-shadow: 0 4px 0 color.adjust($primary-color, $lightness: -15%), 0 6px 16px rgba($primary-color, 0.4);
   z-index: 100;
   
   .fab-icon {

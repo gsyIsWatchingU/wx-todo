@@ -1,4 +1,5 @@
-@import '../../styles/variables.scss';
+@use 'sass:color';
+@use '../../styles/variables.scss' as *;
 
 .task-edit-page {
   min-height: 100vh;
@@ -209,7 +210,7 @@
           &.selected {
             background: linear-gradient(135deg, rgba($primary-color, 0.15), rgba($secondary-color, 0.15));
             border-color: $primary-color;
-            color: darken($primary-color, 25%);
+            color: color.adjust($primary-color, $lightness: -25%);
           }
         }
       }
@@ -228,7 +229,7 @@
       padding: 14px;
       background: $error-color;
       border-radius: $border-radius-lg;
-      box-shadow: 0 3px 0 darken($error-color, 15%);
+      box-shadow: 0 3px 0 color.adjust($error-color, $lightness: -15%);
       font-weight: 700;
     }
   }
