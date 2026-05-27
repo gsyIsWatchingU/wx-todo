@@ -1,9 +1,9 @@
 import { View, Text, Input, Picker } from '@tarojs/components';
 import { useEffect, useRef, useState } from 'react';
 import Taro from '@tarojs/taro';
-import type { Task, List, ViewMode, TaskFilter, TaskStatusFilter } from '../../types';
+import type { Task, ViewMode, TaskFilter, TaskStatusFilter } from '../../types';
 import { formatDate, addDays, addWeeks, addMonths, isToday, startOfWeek, startOfMonth } from '../../utils/dateTools';
-import { listTasks, listLists, createTask, toggleTask } from '../../services/tasks';
+import { listTasks, createTask, toggleTask } from '../../services/tasks';
 import { isLoggedIn } from '../../services/auth';
 import DayView from './components/DayView';
 import WeekView from './components/WeekView';
@@ -12,26 +12,25 @@ import ListView from './components/ListView';
 import './index.scss';
 
 type PriorityFilter = 'all' | 1 | 2 | 3;
-type ListFilterValue = 'all' | string | null;
 type DateRangePreset = 'current-view' | 'custom' | 'none';
 
 const STATUS_OPTIONS: Array<{ label: string; value: TaskStatusFilter }> = [
-  { label: 'All', value: 'all' },
-  { label: 'Active', value: 'active' },
-  { label: 'Completed', value: 'completed' },
+  { label: '全部', value: 'all' },
+  { label: '未完成', value: 'active' },
+  { label: '已完成', value: 'completed' },
 ];
 
 const PRIORITY_OPTIONS: Array<{ label: string; value: PriorityFilter }> = [
-  { label: 'All priorities', value: 'all' },
+  { label: '全部优先级', value: 'all' },
   { label: 'P1', value: 1 },
   { label: 'P2', value: 2 },
   { label: 'P3', value: 3 },
 ];
 
 const DATE_PRESET_OPTIONS: Array<{ label: string; value: DateRangePreset }> = [
-  { label: 'Current view', value: 'current-view' },
-  { label: 'Custom range', value: 'custom' },
-  { label: 'No date limit', value: 'none' },
+  { label: '当前视图', value: 'current-view' },
+  { label: '自定义范围', value: 'custom' },
+  { label: '不限日期', value: 'none' },
 ];
 
 function getDateRangeForView(viewMode: ViewMode, selectedDate: Date) {
@@ -71,29 +70,42 @@ export default function TodayPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [lists, setLists] = useState<List[]>([]);
   const [keyword, setKeyword] = useState('');
   const [status, setStatus] = useState<TaskStatusFilter>('all');
   const [priority, setPriority] = useState<PriorityFilter>('all');
-  const [listId, setListId] = useState<ListFilterValue>('all');
   const [dateRangePreset, setDateRangePreset] = useState<DateRangePreset>('current-view');
   const [customDateStart, setCustomDateStart] = useState('');
   const [customDateEnd, setCustomDateEnd] = useState('');
   const [quickAddValue, setQuickAddValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const isUnmountedRef = useRef(false);
+
   const showQuickAdd = viewMode === 'day' || viewMode === 'list';
+  const trimmedKeyword = keyword.trim();
+  const hasNonDateFilters = status !== 'all' || priority !== 'all';
+  const hasSearchCriteria = Boolean(trimmedKeyword) || hasNonDateFilters;
+  const showFilteredResultsAsList = viewMode !== 'list' && hasSearchCriteria;
+
+  const statusRange = STATUS_OPTIONS.map(option => option.label);
+  const priorityRange = PRIORITY_OPTIONS.map(option => option.label);
+  const datePresetRange = DATE_PRESET_OPTIONS.map(option => option.label);
+
+  const selectedStatusIndex = Math.max(STATUS_OPTIONS.findIndex(option => option.value === status), 0);
+  const selectedPriorityIndex = Math.max(PRIORITY_OPTIONS.findIndex(option => option.value === priority), 0);
+  const selectedDatePresetIndex = Math.max(DATE_PRESET_OPTIONS.findIndex(option => option.value === dateRangePreset), 0);
+
+  const selectedStatusLabel = STATUS_OPTIONS[selectedStatusIndex]?.label || STATUS_OPTIONS[0].label;
+  const selectedPriorityLabel = PRIORITY_OPTIONS[selectedPriorityIndex]?.label || PRIORITY_OPTIONS[0].label;
+  const selectedDatePresetLabel = DATE_PRESET_OPTIONS[selectedDatePresetIndex]?.label || DATE_PRESET_OPTIONS[0].label;
 
   const buildTaskFilter = (): TaskFilter => {
     const filter: TaskFilter = {
-      keyword: keyword.trim() || undefined,
+      keyword: trimmedKeyword || undefined,
       status,
       priority: priority === 'all' ? undefined : priority,
-      listId: typeof listId === 'string' && listId !== 'all' ? listId : undefined,
     };
 
-    if (dateRangePreset === 'current-view') {
+    if (dateRangePreset === 'current-view' && !hasSearchCriteria) {
       const viewDateFilter = getDateRangeForView(viewMode, selectedDate);
       return {
         ...filter,
@@ -123,7 +135,7 @@ export default function TodayPage() {
     } catch (error) {
       if (!isUnmountedRef.current) {
         console.error('Failed to load tasks:', error);
-        Taro.showToast({ title: 'Failed to load tasks', icon: 'none' });
+        Taro.showToast({ title: '加载任务失败', icon: 'none' });
       }
     } finally {
       if (!isUnmountedRef.current) {
@@ -138,14 +150,6 @@ export default function TodayPage() {
       return;
     }
 
-    listLists()
-      .then((loadedLists) => {
-        if (!isUnmountedRef.current) {
-          setLists(loadedLists);
-        }
-      })
-      .catch(error => console.error('Failed to load lists:', error));
-
     return () => {
       isUnmountedRef.current = true;
     };
@@ -153,7 +157,7 @@ export default function TodayPage() {
 
   useEffect(() => {
     void loadTasksForCurrentFilters();
-  }, [viewMode, selectedDate, keyword, status, priority, listId, dateRangePreset, customDateStart, customDateEnd]);
+  }, [viewMode, selectedDate, keyword, status, priority, dateRangePreset, customDateStart, customDateEnd]);
 
   useEffect(() => {
     const unsubscribe = Taro.eventCenter.on('tasksRefresh', () => {
@@ -165,7 +169,7 @@ export default function TodayPage() {
         unsubscribe();
       }
     };
-  }, [viewMode, selectedDate, keyword, status, priority, listId, dateRangePreset, customDateStart, customDateEnd]);
+  }, [viewMode, selectedDate, keyword, status, priority, dateRangePreset, customDateStart, customDateEnd]);
 
   const handleGoToToday = () => {
     setSelectedDate(new Date());
@@ -209,7 +213,7 @@ export default function TodayPage() {
       await loadTasksForCurrentFilters();
     } catch (error) {
       console.error('Failed to toggle task:', error);
-      Taro.showToast({ title: 'Failed to update task', icon: 'none' });
+      Taro.showToast({ title: '更新任务失败', icon: 'none' });
     }
   };
 
@@ -225,15 +229,14 @@ export default function TodayPage() {
         title: quickAddValue.trim(),
         dueAt: quickAddDate,
         dueTime: '23:59',
-        listId: typeof listId === 'string' && listId !== 'all' ? listId : undefined,
       });
 
       setQuickAddValue('');
-      Taro.showToast({ title: 'Task created', icon: 'success' });
+      Taro.showToast({ title: '任务创建成功', icon: 'success' });
       await loadTasksForCurrentFilters();
     } catch (error) {
       console.error('Failed to create task:', error);
-      Taro.showToast({ title: 'Failed to create task', icon: 'none' });
+      Taro.showToast({ title: '创建任务失败', icon: 'none' });
     }
   };
 
@@ -241,23 +244,19 @@ export default function TodayPage() {
     setKeyword('');
     setStatus('all');
     setPriority('all');
-    setListId('all');
     setDateRangePreset('current-view');
     setCustomDateStart('');
     setCustomDateEnd('');
   };
 
   const activeFilterLabels = [
-    keyword.trim() ? `Search: ${keyword.trim()}` : '',
-    status !== 'all' ? `Status: ${status}` : '',
-    priority !== 'all' ? `Priority: P${priority}` : '',
-    typeof listId === 'string' && listId !== 'all'
-      ? `List: ${lists.find(list => list.id === listId)?.name || 'Custom'}`
-      : '',
+    trimmedKeyword ? `搜索: ${trimmedKeyword}` : '',
+    status !== 'all' ? `状态: ${selectedStatusLabel}` : '',
+    priority !== 'all' ? `优先级: P${priority}` : '',
     dateRangePreset === 'custom' && customDateStart && customDateEnd
-      ? `Date: ${customDateStart} to ${customDateEnd}`
+      ? `日期: ${customDateStart} 至 ${customDateEnd}`
       : '',
-    dateRangePreset === 'none' ? 'Date: none' : '',
+    dateRangePreset === 'none' ? '日期: 不限' : '',
   ].filter(Boolean);
 
   return (
@@ -265,120 +264,86 @@ export default function TodayPage() {
       <View className='header'>
         <View className='view-switcher'>
           <View className={`view-tab ${viewMode === 'day' ? 'active' : ''}`} onClick={() => setViewMode('day')}>
-            <Text>Day</Text>
+            <Text>日</Text>
           </View>
           <View className={`view-tab ${viewMode === 'week' ? 'active' : ''}`} onClick={() => setViewMode('week')}>
-            <Text>Week</Text>
+            <Text>周</Text>
           </View>
           <View className={`view-tab ${viewMode === 'month' ? 'active' : ''}`} onClick={() => setViewMode('month')}>
-            <Text>Month</Text>
+            <Text>月</Text>
           </View>
           <View className={`view-tab ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}>
-            <Text>List</Text>
+            <Text>列表</Text>
           </View>
         </View>
 
         <View className='search-row'>
           <Input
             className='search-input'
-            placeholder='Search title or notes'
+            placeholder='搜索任务标题或内容'
             value={keyword}
             onInput={(e) => setKeyword(e.detail.value)}
           />
-          <Text className='filter-toggle' onClick={() => setShowFilters(value => !value)}>
-            {showFilters ? 'Hide' : 'Filter'}
-          </Text>
         </View>
 
-        {showFilters ? (
-          <View className='filter-panel'>
-            <View className='filter-group'>
-              <Text className='filter-label'>Status</Text>
-              <View className='chip-row'>
-                {STATUS_OPTIONS.map(option => (
-                  <Text
-                    key={option.value}
-                    className={`chip ${status === option.value ? 'active' : ''}`}
-                    onClick={() => setStatus(option.value)}
-                  >
-                    {option.label}
-                  </Text>
-                ))}
+        <View className='filter-panel'>
+          <View className='filter-bar'>
+            <Picker
+              mode='selector'
+              range={statusRange}
+              value={selectedStatusIndex}
+              onChange={(e) => setStatus(STATUS_OPTIONS[Number(e.detail.value)]?.value ?? 'all')}
+            >
+              <View className='filter-select'>
+                <Text className='filter-select-label'>状态</Text>
+                <Text className='filter-select-value'>{selectedStatusLabel}</Text>
               </View>
-            </View>
+            </Picker>
 
-            <View className='filter-group'>
-              <Text className='filter-label'>Priority</Text>
-              <View className='chip-row'>
-                {PRIORITY_OPTIONS.map(option => (
-                  <Text
-                    key={String(option.value)}
-                    className={`chip ${priority === option.value ? 'active' : ''}`}
-                    onClick={() => setPriority(option.value)}
-                  >
-                    {option.label}
-                  </Text>
-                ))}
+            <Picker
+              mode='selector'
+              range={priorityRange}
+              value={selectedPriorityIndex}
+              onChange={(e) => setPriority(PRIORITY_OPTIONS[Number(e.detail.value)]?.value ?? 'all')}
+            >
+              <View className='filter-select'>
+                <Text className='filter-select-label'>优先级</Text>
+                <Text className='filter-select-value'>{selectedPriorityLabel}</Text>
               </View>
-            </View>
+            </Picker>
 
-            <View className='filter-group'>
-              <Text className='filter-label'>List</Text>
-              <View className='chip-row'>
-                <Text
-                  className={`chip ${listId === 'all' ? 'active' : ''}`}
-                  onClick={() => setListId('all')}
-                >
-                  All lists
-                </Text>
-                {lists.map(list => (
-                  <Text
-                    key={list.id}
-                    className={`chip ${listId === list.id ? 'active' : ''}`}
-                    onClick={() => setListId(list.id)}
-                  >
-                    {list.name}
-                  </Text>
-                ))}
+            <Picker
+              mode='selector'
+              range={datePresetRange}
+              value={selectedDatePresetIndex}
+              onChange={(e) => setDateRangePreset(DATE_PRESET_OPTIONS[Number(e.detail.value)]?.value ?? 'current-view')}
+            >
+              <View className='filter-select'>
+                <Text className='filter-select-label'>日期</Text>
+                <Text className='filter-select-value'>{selectedDatePresetLabel}</Text>
               </View>
-            </View>
-
-            <View className='filter-group'>
-              <Text className='filter-label'>Date range</Text>
-              <View className='chip-row'>
-                {DATE_PRESET_OPTIONS.map(option => (
-                  <Text
-                    key={option.value}
-                    className={`chip ${dateRangePreset === option.value ? 'active' : ''}`}
-                    onClick={() => setDateRangePreset(option.value)}
-                  >
-                    {option.label}
-                  </Text>
-                ))}
-              </View>
-            </View>
-
-            {dateRangePreset === 'custom' ? (
-              <View className='custom-date-row'>
-                <Picker mode='date' value={customDateStart} onChange={(e) => setCustomDateStart(e.detail.value)}>
-                  <View className='date-picker'>
-                    <Text>{customDateStart || 'Start date'}</Text>
-                  </View>
-                </Picker>
-                <Picker mode='date' value={customDateEnd} onChange={(e) => setCustomDateEnd(e.detail.value)}>
-                  <View className='date-picker'>
-                    <Text>{customDateEnd || 'End date'}</Text>
-                  </View>
-                </Picker>
-              </View>
-            ) : null}
-
-            <View className='filter-actions'>
-              <Text className='secondary-action' onClick={handleResetFilters}>Reset</Text>
-              <Text className='secondary-action' onClick={() => setShowFilters(false)}>Done</Text>
-            </View>
+            </Picker>
           </View>
-        ) : null}
+
+          {dateRangePreset === 'custom' ? (
+            <View className='custom-date-row'>
+              <Picker mode='date' value={customDateStart} onChange={(e) => setCustomDateStart(e.detail.value)}>
+                <View className='date-picker'>
+                  <Text>{customDateStart || '开始日期'}</Text>
+                </View>
+              </Picker>
+              <Picker mode='date' value={customDateEnd} onChange={(e) => setCustomDateEnd(e.detail.value)}>
+                <View className='date-picker'>
+                  <Text>{customDateEnd || '结束日期'}</Text>
+                </View>
+              </Picker>
+            </View>
+          ) : null}
+
+          <View className='filter-actions'>
+            <Text className='secondary-action' onClick={handleResetFilters}>重置筛选</Text>
+          </View>
+        </View>
 
         {activeFilterLabels.length > 0 ? (
           <View className='active-filters'>
@@ -389,8 +354,8 @@ export default function TodayPage() {
         ) : null}
 
         <View className='nav-controls'>
-          <Text className='today-btn' onClick={handleGoToToday}>Today</Text>
-          {isLoading ? <Text className='loading-text'>Loading...</Text> : <Text className='loading-text'>{tasks.length} tasks</Text>}
+          <Text className='today-btn' onClick={handleGoToToday}>今天</Text>
+          {isLoading ? <Text className='loading-text'>加载中...</Text> : <Text className='loading-text'>{tasks.length} 个任务</Text>}
           <View className='nav-arrows'>
             <Text className='nav-arrow left' onClick={handlePrev}>&lt;</Text>
             <Text className='nav-arrow right' onClick={handleNext}>&gt;</Text>
@@ -399,16 +364,26 @@ export default function TodayPage() {
       </View>
 
       <View className='content'>
-        {viewMode === 'day' ? (
-          <DayView
-            selectedDate={selectedDate}
+        {showFilteredResultsAsList ? (
+          <ListView
             tasks={tasks}
+            isLoading={isLoading}
             onTaskClick={handleTaskClick}
             onTaskToggle={handleTaskToggle}
           />
         ) : null}
 
-        {viewMode === 'week' ? (
+        {!showFilteredResultsAsList && viewMode === 'day' ? (
+          <DayView
+            selectedDate={selectedDate}
+            tasks={tasks}
+            isLoading={isLoading}
+            onTaskClick={handleTaskClick}
+            onTaskToggle={handleTaskToggle}
+          />
+        ) : null}
+
+        {!showFilteredResultsAsList && viewMode === 'week' ? (
           <WeekView
             selectedDate={selectedDate}
             tasks={tasks}
@@ -418,7 +393,7 @@ export default function TodayPage() {
           />
         ) : null}
 
-        {viewMode === 'month' ? (
+        {!showFilteredResultsAsList && viewMode === 'month' ? (
           <MonthView
             selectedDate={selectedDate}
             tasks={tasks}
@@ -426,9 +401,10 @@ export default function TodayPage() {
           />
         ) : null}
 
-        {viewMode === 'list' ? (
+        {!showFilteredResultsAsList && viewMode === 'list' ? (
           <ListView
             tasks={tasks}
+            isLoading={isLoading}
             onTaskClick={handleTaskClick}
             onTaskToggle={handleTaskToggle}
           />
@@ -439,12 +415,12 @@ export default function TodayPage() {
         <View className='quick-add'>
           <Input
             className='quick-add-input'
-            placeholder='Quick add a task...'
+            placeholder='快速添加一个任务...'
             value={quickAddValue}
             onInput={(e) => setQuickAddValue(e.detail.value)}
             onConfirm={handleQuickAdd}
           />
-          <Text className='quick-add-btn' onClick={handleQuickAdd}>Add</Text>
+          <Text className='quick-add-btn' onClick={handleQuickAdd}>添加</Text>
         </View>
       ) : null}
 

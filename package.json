@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "taro build --type weapp --watch",
+    "dev:h5": "taro build --type h5 --watch",
     "build": "taro build --type weapp",
+    "build:h5": "taro build --type h5",
     "deploy:functions": "powershell -ExecutionPolicy Bypass -File scripts/deploy-supabase-functions.ps1"
   },
   "keywords": [
@@ -21,6 +23,7 @@
     "@nutui/nutui-react-taro": "^3.0.19-cpp.29-beta.1",
     "@tarojs/components": "^4.2.0",
     "@tarojs/plugin-framework-react": "^4.2.0",
+    "@tarojs/plugin-platform-h5": "^4.2.0",
     "@tarojs/plugin-platform-weapp": "^4.2.0",
     "@tarojs/react": "^4.2.0",
     "@tarojs/runtime": "^4.2.0",

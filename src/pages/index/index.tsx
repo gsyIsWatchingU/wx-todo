@@ -25,7 +25,7 @@ export default function Index() {
   return (
     <View className='index-container'>
       <View className='header'>
-        <Text className='title'>Todo List</Text>
+        <Text className='title'>待办事项</Text>
         <Text className='subtitle'>记录每一天的待办事项</Text>
       </View>
       <View className='input-box'>

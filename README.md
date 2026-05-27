@@ -1,5 +1,39 @@
 # wx-todo
 
+## 电脑端预览
+
+这个项目现在同时支持微信小程序预览和电脑端长期预览。
+
+### 微信小程序预览
+
+1. 运行 `npm run dev`
+2. 用微信开发者工具打开项目
+3. 将微信开发者工具指向编译后的 `dist` 目录
+
+### 电脑端 H5 预览
+
+1. 拉取最新代码后先执行 `npm install`
+2. 运行 `npm run dev:h5`
+3. 在浏览器中打开本地 H5 预览地址，并可长期保持打开
+
+### H5 端登录说明
+
+- `weapp` 端继续使用 `wx.login`
+- `h5` 端会自动创建本地预览会话，因此不需要微信运行环境也能浏览页面
+- 任务数据仍然优先请求 Supabase，远端不可用时会回退到本地存储
+
+### 部署到 Vercel
+
+仓库已经包含 `vercel.json`，可直接用于部署 H5 版本到 Vercel。
+
+1. 执行 `npm install`
+2. 将仓库推送到 GitHub
+3. 在 Vercel 中导入这个仓库
+4. 配置 `TARO_APP_SUPABASE_URL` 和 `TARO_APP_SUPABASE_ANON_KEY`
+5. 发起部署
+
+详细说明见：[docs/DEPLOY_VERCEL.md](./docs/DEPLOY_VERCEL.md)
+
 一个面向微信小程序场景的 Todo 应用，使用 `Taro + React + TypeScript + Supabase` 构建，支持微信登录、任务管理和多视图浏览，适合作为小程序待办项目模板或学习示例。
 
 ## 项目亮点

@@ -5,17 +5,22 @@ import './ListView.scss';
 
 interface ListViewProps {
   tasks: Task[];
+  isLoading?: boolean;
   onTaskClick: (task: Task) => void;
   onTaskToggle: (task: Task) => void;
 }
 
-export default function ListView({ tasks, onTaskClick, onTaskToggle }: ListViewProps) {
+export default function ListView({ tasks, isLoading, onTaskClick, onTaskToggle }: ListViewProps) {
   return (
     <ScrollView className='list-view' scrollY>
       <View className='task-list'>
-        {tasks.length === 0 ? (
+        {isLoading ? (
           <View className='empty-state'>
-            <Text className='empty-text'>No tasks match these filters.</Text>
+            <Text className='empty-text'>加载中...</Text>
+          </View>
+        ) : tasks.length === 0 ? (
+          <View className='empty-state'>
+            <Text className='empty-text'>没有匹配的任务。</Text>
           </View>
         ) : (
           tasks.map(task => (

@@ -183,7 +183,7 @@ export default function TaskEditPage({}: TaskEditPageProps) {
           <Input
             className='content-input'
             type='textarea'
-            placeholder='添加一些描述...'
+            placeholder='添加描述...'
             value={content}
             onInput={(e) => setContent(e.detail.value)}
           />

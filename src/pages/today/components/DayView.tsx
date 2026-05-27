@@ -7,11 +7,18 @@ import './DayView.scss';
 interface DayViewProps {
   selectedDate: Date;
   tasks: Task[];
+  isLoading?: boolean;
   onTaskClick: (task: Task) => void;
   onTaskToggle: (task: Task) => void;
 }
 
-export default function DayView({ selectedDate, tasks, onTaskClick, onTaskToggle }: DayViewProps) {
+export default function DayView({
+  selectedDate,
+  tasks,
+  isLoading,
+  onTaskClick,
+  onTaskToggle,
+}: DayViewProps) {
   const selectedDateText = formatDate(selectedDate);
   const undatedTasks = isToday(selectedDate) ? tasks.filter(task => !task.dueAt) : [];
   const datedTasks = tasks.filter(task => task.dueAt === selectedDateText);
@@ -23,12 +30,12 @@ export default function DayView({ selectedDate, tasks, onTaskClick, onTaskToggle
     <ScrollView className='day-view' scrollY>
       <View className='day-header'>
         <Text className='day-date'>{formatDisplayDate(selectedDate)}</Text>
-        {isToday(selectedDate) ? <Text className='today-tag'>Today</Text> : null}
+        {isToday(selectedDate) ? <Text className='today-tag'>今天</Text> : null}
       </View>
 
       {undatedTasks.length > 0 ? (
         <View className='task-section'>
-          <Text className='section-title'>No due date</Text>
+          <Text className='section-title'>未设置日期</Text>
           {undatedTasks.map(task => (
             <TaskItem
               key={task.id}
@@ -42,7 +49,7 @@ export default function DayView({ selectedDate, tasks, onTaskClick, onTaskToggle
 
       {sortedDatedTasks.length > 0 ? (
         <View className='task-section'>
-          <Text className='section-title'>Scheduled</Text>
+          <Text className='section-title'>今日任务</Text>
           {sortedDatedTasks.map(task => (
             <TaskItem
               key={task.id}
@@ -54,9 +61,13 @@ export default function DayView({ selectedDate, tasks, onTaskClick, onTaskToggle
         </View>
       ) : null}
 
-      {undatedTasks.length === 0 && sortedDatedTasks.length === 0 ? (
+      {isLoading ? (
         <View className='empty-state'>
-          <Text className='empty-text'>No tasks match these filters.</Text>
+          <Text className='empty-text'>加载中...</Text>
+        </View>
+      ) : undatedTasks.length === 0 && sortedDatedTasks.length === 0 ? (
+        <View className='empty-state'>
+          <Text className='empty-text'>没有匹配的任务。</Text>
         </View>
       ) : null}
     </ScrollView>

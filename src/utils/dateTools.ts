@@ -61,7 +61,7 @@ export const endOfMonth = (date: Date): Date => {
 };
 
 export const getWeekDays = (): string[] => {
-  return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  return ['一', '二', '三', '四', '五', '六', '日'];
 };
 
 export const getCalendarDays = (date: Date): Date[] => {
