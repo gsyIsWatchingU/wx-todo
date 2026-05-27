@@ -39,6 +39,7 @@ export default defineConfig({
   framework: 'react',
   plugins,
   compiler: {
+    type: 'webpack5',
     // Taro 4.2.0's H5 webpack runner reads compiler.prebundle directly.
     // Keep it explicit so cloud builds don't crash when the default is missing.
     prebundle: {
@@ -49,6 +50,15 @@ export default defineConfig({
     'process.env.REACT': JSON.stringify('{}'),
     'process.env.TARO_APP_SUPABASE_URL': JSON.stringify(getBuildEnv('TARO_APP_SUPABASE_URL', DEFAULT_SUPABASE_URL)),
     'process.env.TARO_APP_SUPABASE_ANON_KEY': JSON.stringify(getBuildEnv('TARO_APP_SUPABASE_ANON_KEY', DEFAULT_SUPABASE_ANON_KEY))
+  },
+  copy: {
+    patterns: [
+      {
+        from: 'static',
+        to: 'dist/static'
+      }
+    ],
+    options: {}
   },
   mini: {
     postcss: {
@@ -63,27 +73,20 @@ export default defineConfig({
         }
       },
       cssModules: {
-        enable: false,
-        config: {
-          camelCase: true
-        }
+        enable: false
       }
     }
   },
   h5: {
     publicPath: '/',
     staticDirectory: 'static',
-    favicon: '/static/favicon.png', 
     postcss: {
       autoprefixer: {
         enable: true,
         config: {}
       },
       cssModules: {
-        enable: false,
-        config: {
-          camelCase: true
-        }
+        enable: false
       }
     }
   }
