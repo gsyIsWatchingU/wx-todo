@@ -38,6 +38,13 @@ export default defineConfig({
   outputRoot: 'dist',
   framework: 'react',
   plugins,
+  compiler: {
+    // Taro 4.2.0's H5 webpack runner reads compiler.prebundle directly.
+    // Keep it explicit so cloud builds don't crash when the default is missing.
+    prebundle: {
+      enable: false
+    }
+  },
   defineConstants: {
     'process.env.REACT': JSON.stringify('{}'),
     'process.env.TARO_APP_SUPABASE_URL': JSON.stringify(getBuildEnv('TARO_APP_SUPABASE_URL', DEFAULT_SUPABASE_URL)),
